@@ -1146,17 +1146,24 @@ st.write(
 # RAG AVAILABILITY
 # ==================================================
 
-vector_store_status = (
-    load_vector_store()
-)
-
+vector_store_status = load_vector_store()
 
 if vector_store_status is None:
 
-    st.warning(
-        "The document knowledge base is currently unavailable. "
-        "An Admin can build it from the Knowledge Base page."
-    )
+    if st.session_state.get("role") == "Admin":
+
+        st.warning(
+            "The document knowledge base is currently unavailable. "
+            "Build it from the Knowledge Base page."
+        )
+
+    else:
+
+        st.info(
+            "Some guidance sources are currently unavailable. "
+            "AI Navigator can still answer general questions and use "
+            "available school information."
+        )
 
 
 # ==================================================
