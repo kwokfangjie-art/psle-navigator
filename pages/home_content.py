@@ -144,7 +144,7 @@ st.divider()
 # ==================================================
 
 st.header(
-    "Why use PSLE Navigator?"
+    "Why use PathFinder?"
 )
 
 value1, value2, value3 = st.columns(3)
@@ -244,7 +244,7 @@ footer_left, footer_right = st.columns(
 with footer_left:
 
     st.caption(
-        "PSLE Navigator is an educational prototype. "
+        "PathFinder is an educational prototype. "
         "Historical cut-off points are reference points only "
         "and do not guarantee future admission outcomes."
     )
@@ -307,5 +307,5 @@ with the Ministry of Education and the relevant school's official information.
 # ==================================================
 
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone Project"
+    "PathFinder · AI Bootcamp Capstone Project"
 )
