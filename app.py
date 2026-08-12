@@ -8,7 +8,7 @@ from utils.auth import require_login, logout
 # ==================================================
 
 st.set_page_config(
-    page_title="PSLE Navigator",
+    page_title="PathFinder",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
