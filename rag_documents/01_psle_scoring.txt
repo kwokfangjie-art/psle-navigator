@@ -1,0 +1,34 @@
+Title: PSLE Scoring System
+Source: Ministry of Education Singapore
+Source type: Official government information
+Last reviewed: August 2026
+
+--- CONTENT ---
+
+The Primary School Leaving Examination (PSLE) uses the Achievement Level (AL) scoring system.
+
+Each PSLE subject is assigned an Achievement Level from AL1 to AL8.
+
+AL1 represents the strongest performance, while AL8 represents the weakest performance.
+
+A student's overall PSLE Score is calculated by adding the Achievement Levels obtained for the four PSLE subjects:
+
+- English Language
+- Mother Tongue Language
+- Mathematics
+- Science
+
+The overall PSLE Score therefore ranges from 4 to 32.
+
+A lower overall PSLE Score represents stronger academic performance.
+
+The Achievement Level system replaced the previous T-score system from 2021.
+
+The purpose of the AL system is to reduce excessively fine differentiation between students and place greater emphasis on students' own level of achievement rather than their performance relative to their peers.
+
+When discussing secondary school options, PSLE Scores should not be treated as the only factor. Parents and students should also consider factors such as school programmes, interests, co-curricular activities, location and school environment.
+
+Important:
+PSLE scoring rules and secondary school admission arrangements may change over time. Users should verify current information with the Ministry of Education.
+
+--- END ---
