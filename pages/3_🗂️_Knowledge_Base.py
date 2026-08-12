@@ -655,7 +655,7 @@ Use short headings and bullets where helpful.
 
                     summariser_instructions = f"""
 You are a document summarisation assistant for the
-PSLE Navigator educational prototype.
+PathFinder educational prototype.
 
 Use British English.
 
