@@ -1,7 +1,9 @@
-import streamlit as st
+import re
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
-import re
+import streamlit as st
 
 
 # ==================================================
@@ -246,15 +248,28 @@ def load_school_data():
 # ==================================================
 
 @st.cache_data
-def load_psle_data():
+def load_psle_data(
+    file_modified_time
+):
 
     df = pd.read_csv(
         "data/psle_ranges.csv"
     )
 
+    # Clean pathway values so accidental spaces
+    # in the CSV do not affect pathway matching.
+    df["pathway"] = (
+        df["pathway"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
+
     df["school_key"] = (
         df["school_name"]
-        .apply(normalise_school_name)
+        .apply(
+            normalise_school_name
+        )
     )
 
     return df
@@ -293,8 +308,22 @@ def load_cca_data():
     return df
 
 
+# ==================================================
+# LOAD DATA
+# ==================================================
+
 schools = load_school_data()
-psle_data = load_psle_data()
+
+
+psle_file = Path(
+    "data/psle_ranges.csv"
+)
+
+psle_data = load_psle_data(
+    psle_file.stat().st_mtime
+)
+
+
 cca_data = load_cca_data()
 
 
