@@ -1,12 +1,88 @@
-school_name,year,pathway,score_low,score_high,affiliation,hcl_low,hcl_high,source_url
-Anderson Secondary School,2025,Posting Group 3,7,11,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/anderson-secondary-school
-Anderson Secondary School,2025,Posting Group 2,21,23,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/anderson-secondary-school
-Anderson Secondary School,2025,Posting Group 1,25,28,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/anderson-secondary-school
-Jurong West Secondary School,2025,Posting Group 3,11,16,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/jurong-west-secondary-school
-Jurong West Secondary School,2025,Posting Group 2,21,24,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/jurong-west-secondary-school
-Jurong West Secondary School,2025,Posting Group 1,25,28,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/jurong-west-secondary-school
-Juying Secondary School,2025,Posting Group 3,17,22,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/juying-secondary-school
-Juying Secondary School,2025,Posting Group 2,21,25,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/juying-secondary-school
-Juying Secondary School,2025,Posting Group 1,26,30,Non-affiliated,,,https://www.moe.gov.sg/schoolfinder/schooldetail/juying-secondary-school
-River Valley High School (Secondary),2025,Integrated Programme,4,9,Non-affiliated,M,M,https://www.moe.gov.sg/schoolfinder/schooldetail/river-valley-high-school-secondary
-Hwa Chong Institution (Secondary),2025,Integrated Programme,4,6,Non-affiliated,D,M,https://www.moe.gov.sg/schoolfinder/schooldetail/hwa-chong-institution-secondary
+school_name,year,pathway,cutoff,hcl_cutoff,source_url
+Raffles Girls' School (Secondary),2025,Integrated Programme,5,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Hwa Chong Institution (Secondary),2025,Integrated Programme,6,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Nanyang Girls' High School,2025,Integrated Programme,6,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Raffles Institution (Secondary),2025,Integrated Programme,6,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Anglo-Chinese School (Independent) (Secondary),2025,Integrated Programme,6,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Methodist Girls' School (Secondary),2025,Integrated Programme,6,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Dunman High School (Secondary),2025,Integrated Programme,7,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+National Junior College (Secondary),2025,Integrated Programme,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Catholic High School (Secondary),2025,Integrated Programme,7,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+CHIJ St. Nicholas Girls' School (Secondary),2025,Integrated Programme,7,D,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Singapore Chinese Girls' School,2025,Integrated Programme,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+St. Joseph's Institution (Secondary),2025,Integrated Programme,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Cedar Girls' Secondary School,2025,Integrated Programme,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Victoria School,2025,Integrated Programme,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+River Valley High School (Secondary),2025,Integrated Programme,8,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Temasek Junior College (Secondary),2025,Integrated Programme,8,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Anglo-Chinese School (Independent) (Secondary),2025,Posting Group 3,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Methodist Girls' School (Secondary),2025,Posting Group 3,7,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Catholic High School (Secondary),2025,Posting Group 3,8,P,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+CHIJ St. Nicholas Girls' School (Secondary),2025,Posting Group 3,8,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Singapore Chinese Girls' School,2025,Posting Group 3,8,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+St. Joseph's Institution (Secondary),2025,Posting Group 3,8,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Cedar Girls' Secondary School,2025,Posting Group 3,9,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Victoria School,2025,Posting Group 3,9,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Chung Cheng High School (Main),2025,Posting Group 3,9,P,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Anderson Secondary School,2025,Posting Group 3,10,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Crescent Girls' School,2025,Posting Group 3,10,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Nan Chiau High School,2025,Posting Group 3,10,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Nan Hua High School,2025,Posting Group 3,10,M,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Swiss Cottage Secondary School,2025,Posting Group 3,10,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bukit Panjang Govt. High School,2025,Posting Group 3,11,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Ngee Ann Secondary School,2025,Posting Group 3,11,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Temasek Secondary School,2025,Posting Group 3,11,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Commonwealth Secondary School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Fuhua Secondary School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Tanjong Katong Girls' School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Tanjong Katong Secondary School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Yishun Town Secondary School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Zhonghua Secondary School,2025,Posting Group 3,12,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Dunman Secondary School,2025,Posting Group 3,13,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Edgefield Secondary School,2025,Posting Group 3,13,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Kranji Secondary School,2025,Posting Group 3,13,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Riverside Secondary School,2025,Posting Group 3,13,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Xinmin Secondary School,2025,Posting Group 3,13,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bukit Batok Secondary School,2025,Posting Group 3,14,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Evergreen Secondary School,2025,Posting Group 3,14,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Gan Eng Seng School,2025,Posting Group 3,14,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Hua Yi Secondary School,2025,Posting Group 3,14,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Pei Hwa Secondary School,2025,Posting Group 3,14,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Ang Mo Kio Secondary School,2025,Posting Group 3,15,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bowen Secondary School,2025,Posting Group 3,15,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Jurong Secondary School,2025,Posting Group 3,15,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bedok View Secondary School,2025,Posting Group 3,16,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Greendale Secondary School,2025,Posting Group 3,16,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Jurong West Secondary School,2025,Posting Group 3,16,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Queensway Secondary School,2025,Posting Group 3,16,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Ahmad Ibrahim Secondary School,2025,Posting Group 3,17,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Hillgrove Secondary School,2025,Posting Group 3,17,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Mayflower Secondary School,2025,Posting Group 3,17,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+North Vista Secondary School,2025,Posting Group 3,17,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Pasir Ris Secondary School,2025,Posting Group 3,17,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bedok South Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Compassvale Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Kent Ridge Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Orchid Park Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Tampines Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Unity Secondary School,2025,Posting Group 3,18,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Punggol Secondary School,2025,Posting Group 3,19,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Woodgrove Secondary School,2025,Posting Group 3,19,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Yishun Secondary School,2025,Posting Group 3,19,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Zhenghua Secondary School,2025,Posting Group 3,19,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Admiralty Secondary School,2025,Posting Group 3,20,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bedok Green Secondary School,2025,Posting Group 3,20,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Hougang Secondary School,2025,Posting Group 3,20,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+New Town Secondary School,2025,Posting Group 3,21,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Peicai Secondary School,2025,Posting Group 3,21,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bartley Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bendemeer Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Boon Lay Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Bukit Merah Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Dunearn Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Junyuan Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Juying Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Northbrooks Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Queenstown Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Sembawang Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
+Westwood Secondary School,2025,Posting Group 3,22,,https://www.cutoffpoint.sg/2025-secondary-school-cut-off-points-in-singapore-affiliated-vs-non-affiliated/
