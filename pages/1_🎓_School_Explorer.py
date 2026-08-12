@@ -1,38 +1,124 @@
 import streamlit as st
 import pandas as pd
 
+
+# ==================================================
+# PAGE CONFIG
+# ==================================================
+
 st.set_page_config(
     page_title="School Explorer | PSLE Navigator",
     page_icon="🎓",
     layout="wide"
 )
 
-# --------------------------------------------------
-# Load school data
-# --------------------------------------------------
+
+# ==================================================
+# LOAD OFFICIAL MOE SCHOOL DATA
+# ==================================================
 
 @st.cache_data
 def load_school_data():
-    return pd.read_csv("data/schools.csv")
+
+    # IMPORTANT:
+    # This filename must exactly match the file in your GitHub data folder.
+    df = pd.read_csv("data/General information of schools.csv")
+
+    # Keep schools that provide secondary-level education
+    secondary_levels = [
+        "SECONDARY (S1-S5)",
+        "SECONDARY (S1-S4)",
+        "MIXED LEVEL (S1-JC2)",
+        "MIXED LEVEL (P1-S4)",
+        "MIXED LEVEL (S1-S5, JC1-JC2)"
+    ]
+
+    df = df[
+        df["mainlevel_code"].isin(secondary_levels)
+    ].copy()
+
+    # ----------------------------------------------
+    # Clean gender
+    # ----------------------------------------------
+
+    gender_map = {
+        "CO-ED SCHOOL": "Co-ed",
+        "BOYS' SCHOOL": "Boys",
+        "GIRLS' SCHOOL": "Girls"
+    }
+
+    df["gender"] = df["nature_code"].map(gender_map)
+
+    # ----------------------------------------------
+    # Clean zone
+    # ----------------------------------------------
+
+    df["zone"] = df["zone_code"].str.title()
+
+    # ----------------------------------------------
+    # Rename useful fields
+    # ----------------------------------------------
+
+    df = df.rename(
+        columns={
+            "url_address": "website",
+            "sap_ind": "sap",
+            "ip_ind": "ip"
+        }
+    )
+
+    # ----------------------------------------------
+    # Make school names easier to read
+    # ----------------------------------------------
+
+    df["school_name"] = df["school_name"].str.title()
+
+    # ----------------------------------------------
+    # Keep only fields required by the app
+    # ----------------------------------------------
+
+    keep_columns = [
+        "school_name",
+        "gender",
+        "zone",
+        "type_code",
+        "mainlevel_code",
+        "sap",
+        "ip",
+        "website"
+    ]
+
+    df = df[keep_columns].copy()
+
+    return df
+
 
 schools = load_school_data()
 
+
+# ==================================================
+# PAGE HEADER
+# ==================================================
+
 st.title("🎓 School Explorer")
+
 st.write(
     "Tell us about the student to explore secondary school options "
     "that may match their profile."
 )
 
 st.info(
-    "💡 This tool uses indicative information for educational purposes only. "
-    "It does not predict or guarantee admission to any school."
+    "💡 This prototype currently uses official MOE school information "
+    "for gender, location and programme matching. "
+    "PSLE score-range matching will be added in the next stage."
 )
 
 st.divider()
 
-# --------------------------------------------------
-# Student Profile
-# --------------------------------------------------
+
+# ==================================================
+# STUDENT PROFILE
+# ==================================================
 
 st.subheader("👤 Student profile")
 
@@ -43,15 +129,19 @@ student_name = st.text_input(
 
 gender = st.segmented_control(
     "Gender",
-    options=["Male", "Female"],
+    options=[
+        "Male",
+        "Female"
+    ],
     default=None
 )
 
 st.divider()
 
-# --------------------------------------------------
-# PSLE Scores
-# --------------------------------------------------
+
+# ==================================================
+# PSLE SCORES
+# ==================================================
 
 st.subheader("📊 PSLE Subject AL Scores")
 
@@ -70,6 +160,7 @@ subjects = [
 scores = {}
 
 for subject in subjects:
+
     scores[subject] = st.segmented_control(
         subject,
         options=list(range(1, 9)),
@@ -77,12 +168,16 @@ for subject in subjects:
         key=f"score_{subject}"
     )
 
+
 # Check whether all four scores have been selected
 all_scores_selected = all(
-    score is not None for score in scores.values()
+    score is not None
+    for score in scores.values()
 )
 
+
 if all_scores_selected:
+
     overall_al = sum(scores.values())
 
     st.metric(
@@ -98,12 +193,17 @@ if all_scores_selected:
     )
 
 else:
-    overall_al = None
-    st.caption("Select all 4 subjects to calculate the overall AL score.")
 
-# --------------------------------------------------
-# Predicted / Actual
-# --------------------------------------------------
+    overall_al = None
+
+    st.caption(
+        "Select all 4 subjects to calculate the overall AL score."
+    )
+
+
+# ==================================================
+# PREDICTED / ACTUAL
+# ==================================================
 
 st.write("")
 
@@ -118,9 +218,10 @@ result_type = st.radio(
 
 st.divider()
 
-# --------------------------------------------------
-# School Preferences
-# --------------------------------------------------
+
+# ==================================================
+# SCHOOL PREFERENCES
+# ==================================================
 
 st.subheader("📍 School preferences")
 
@@ -131,8 +232,7 @@ preferred_zone = st.segmented_control(
         "North",
         "South",
         "East",
-        "West",
-        "Central"
+        "West"
     ],
     default="Any"
 )
@@ -141,25 +241,31 @@ st.caption(
     "Select 'Any' to see potential matches regardless of location."
 )
 
+
 ip_priority = st.radio(
     "Is the Integrated Programme (IP) a priority?",
-    options=["Yes", "Maybe", "No"],
+    options=[
+        "Yes",
+        "Maybe",
+        "No"
+    ],
     index=1,
     horizontal=True
 )
 
 st.caption(
     "The Integrated Programme is a 6-year pathway that generally "
-    "leads directly to A-Levels, the IB Diploma or another qualification "
-    "without taking the Singapore-Cambridge Secondary Education Certificate "
-    "examinations at the end of Secondary 4."
+    "allows students to progress towards qualifications such as "
+    "the A-Levels or IB Diploma without taking the national "
+    "Secondary 4 examination route."
 )
 
 st.divider()
 
-# --------------------------------------------------
+
+# ==================================================
 # DSA
-# --------------------------------------------------
+# ==================================================
 
 st.subheader("🏅 Interests & DSA-Sec")
 
@@ -178,6 +284,7 @@ st.caption(
     "DSA-Sec allows students to apply to secondary schools based on "
     "talents and achievements before the S1 Posting exercise."
 )
+
 
 interests = st.multiselect(
     "Interests and talents",
@@ -209,9 +316,10 @@ interests = st.multiselect(
 
 st.divider()
 
-# --------------------------------------------------
-# Higher Mother Tongue
-# --------------------------------------------------
+
+# ==================================================
+# HIGHER MOTHER TONGUE
+# ==================================================
 
 st.subheader("🗣️ Mother Tongue")
 
@@ -229,14 +337,16 @@ higher_mt = st.radio(
 
 st.divider()
 
-# --------------------------------------------------
-# Submit
-# --------------------------------------------------
+
+# ==================================================
+# SUBMIT
+# ==================================================
 
 profile_complete = (
     gender is not None
     and all_scores_selected
 )
+
 
 if st.button(
     "Find potential school matches →",
@@ -245,6 +355,10 @@ if st.button(
     disabled=not profile_complete
 ):
 
+    # ----------------------------------------------
+    # PROFILE SUMMARY
+    # ----------------------------------------------
+
     st.success("Student profile created successfully!")
 
     st.subheader("Profile summary")
@@ -252,139 +366,326 @@ if st.button(
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Overall PSLE Score", f"AL {overall_al}")
+        st.metric(
+            "Overall PSLE Score",
+            f"AL {overall_al}"
+        )
 
     with col2:
-        st.metric("Preferred Zone", preferred_zone)
+        st.metric(
+            "Preferred Zone",
+            preferred_zone
+        )
 
     with col3:
-        st.metric("IP Priority", ip_priority)
+        st.metric(
+            "IP Priority",
+            ip_priority
+        )
 
-    st.write("**Gender:**", gender)
-    st.write("**Result type:**", result_type)
+    st.write(
+        "**Gender:**",
+        gender
+    )
+
+    st.write(
+        "**Result type:**",
+        result_type
+    )
 
     if interests:
-        st.write("**Interests:**", ", ".join(interests))
-    else:
-        st.write("**Interests:** Not specified")
 
-    # --------------------------------------------------
-    # Find potential school matches
-    # --------------------------------------------------
+        st.write(
+            "**Interests:**",
+            ", ".join(interests)
+        )
+
+    else:
+
+        st.write(
+            "**Interests:** Not specified"
+        )
+
+
+    # ==================================================
+    # SCHOOL MATCHING
+    # ==================================================
 
     matches = schools.copy()
 
-    # Match by gender
+
+    # ----------------------------------------------
+    # Match gender
+    # ----------------------------------------------
+
     if gender == "Male":
+
         matches = matches[
-            matches["gender"].isin(["Male", "Co-ed"])
+            matches["gender"].isin(
+                [
+                    "Boys",
+                    "Co-ed"
+                ]
+            )
         ]
+
     elif gender == "Female":
+
         matches = matches[
-            matches["gender"].isin(["Female", "Co-ed"])
+            matches["gender"].isin(
+                [
+                    "Girls",
+                    "Co-ed"
+                ]
+            )
         ]
 
-    # Match by indicative PSLE score range
-    matches = matches[
-        overall_al <= matches["score_high"]
-    ]
 
-    # Preferred zone is used for ranking, not exclusion
+    # ----------------------------------------------
+    # Rank by preferred zone
+    #
+    # IMPORTANT:
+    # Zone does NOT exclude schools.
+    # Preferred-zone schools simply appear first.
+    # ----------------------------------------------
+
     if preferred_zone != "Any":
+
         matches["zone_match"] = (
             matches["zone"] == preferred_zone
         )
+
         matches = matches.sort_values(
-            by=["zone_match", "score_high"],
-            ascending=[False, True]
+            by=[
+                "zone_match",
+                "school_name"
+            ],
+            ascending=[
+                False,
+                True
+            ]
         )
+
     else:
+
         matches = matches.sort_values(
-            by="score_high",
+            by="school_name",
             ascending=True
         )
+
+
+    # ----------------------------------------------
+    # Optional IP preference ranking
+    # ----------------------------------------------
+
+    if ip_priority == "Yes":
+
+        matches["ip_match"] = (
+            matches["ip"] == "Yes"
+        )
+
+        if preferred_zone != "Any":
+
+            matches = matches.sort_values(
+                by=[
+                    "zone_match",
+                    "ip_match",
+                    "school_name"
+                ],
+                ascending=[
+                    False,
+                    False,
+                    True
+                ]
+            )
+
+        else:
+
+            matches = matches.sort_values(
+                by=[
+                    "ip_match",
+                    "school_name"
+                ],
+                ascending=[
+                    False,
+                    True
+                ]
+            )
+
+
+    # ==================================================
+    # DISPLAY RESULTS
+    # ==================================================
 
     st.divider()
 
     st.subheader("🎓 Potential school matches")
 
     st.caption(
-        "These results are based on indicative score ranges and "
-        "basic profile matching. They do not predict or guarantee admission."
+        "These results currently use school gender, zone and programme "
+        "information from the MOE school directory. "
+        "PSLE score-range matching will be added separately."
     )
 
+
     if matches.empty:
+
         st.warning(
             "No potential matches were found in the current school dataset."
         )
 
     else:
+
         st.write(
             f"**{len(matches)} potential match"
             f"{'es' if len(matches) != 1 else ''} found**"
         )
 
+
+        # ------------------------------------------
+        # Results summary
+        # ------------------------------------------
+
+        if preferred_zone != "Any":
+
+            zone_count = len(
+                matches[
+                    matches["zone"] == preferred_zone
+                ]
+            )
+
+            st.write(
+                f"📍 **{zone_count}** of these schools are in "
+                f"the **{preferred_zone}** zone."
+            )
+
+
+        if ip_priority == "Yes":
+
+            ip_count = len(
+                matches[
+                    matches["ip"] == "Yes"
+                ]
+            )
+
+            st.write(
+                f"🎓 **{ip_count}** schools in the results "
+                f"offer the Integrated Programme."
+            )
+
+
+        st.write("")
+
+
+        # ------------------------------------------
+        # School cards
+        # ------------------------------------------
+
         for _, school in matches.iterrows():
 
             with st.container(border=True):
 
-                col1, col2 = st.columns([4, 1])
+                st.subheader(
+                    school["school_name"]
+                )
 
-                with col1:
-                    st.subheader(school["school_name"])
 
-                    st.write(
-                        f"**{school['gender']}** · "
-                        f"{school['zone']} · "
-                        f"Indicative AL {school['score_low']}–{school['score_high']}"
-                    )
-
-                with col2:
-
-                    if overall_al <= school["score_low"]:
-                        st.success("Strong match")
-
-                    elif overall_al <= school["score_high"]:
-                        st.info("Within range")
-
-                st.write("**Why this school appears:**")
+                # ----------------------------------
+                # Basic school details
+                # ----------------------------------
 
                 st.write(
-                    "✓ Student's AL score is within or stronger than "
-                    "the school's indicative range."
+                    f"**{school['gender']}** · "
+                    f"{school['zone']} · "
+                    f"{school['type_code'].title()}"
+                )
+
+
+                # ----------------------------------
+                # Programme badges
+                # ----------------------------------
+
+                programme_badges = []
+
+                if school["ip"] == "Yes":
+                    programme_badges.append("🎓 IP")
+
+                if school["sap"] == "Yes":
+                    programme_badges.append("🏮 SAP")
+
+
+                if programme_badges:
+
+                    st.write(
+                        "**Programmes:** "
+                        + " · ".join(programme_badges)
+                    )
+
+
+                # ----------------------------------
+                # Why this school appears
+                # ----------------------------------
+
+                st.write(
+                    "**Why this school appears:**"
                 )
 
                 st.write(
                     "✓ School gender matches the student's profile."
                 )
 
+
                 if preferred_zone != "Any":
 
                     if school["zone"] == preferred_zone:
-                        st.write("✓ Matches preferred school zone.")
 
-                    else:
                         st.write(
-                            "• Outside preferred zone, but shown as "
-                            "another potential option."
+                            "✓ Matches preferred school zone."
                         )
 
-                programme_badges = []
+                    else:
 
-                if school["ip"] == "Yes":
-                    programme_badges.append("IP")
+                        st.write(
+                            "• Outside the preferred zone, "
+                            "but shown as another possible option."
+                        )
 
-                if school["sap"] == "Yes":
-                    programme_badges.append("SAP")
 
-                if programme_badges:
+                if (
+                    ip_priority == "Yes"
+                    and school["ip"] == "Yes"
+                ):
+
                     st.write(
-                        "**Programmes:** "
-                        + " · ".join(programme_badges)
+                        "✓ Offers the Integrated Programme, "
+                        "which matches the student's stated preference."
                     )
 
-                if pd.notna(school["website"]):
+
+                # ----------------------------------
+                # Website
+                # ----------------------------------
+
+                if (
+                    pd.notna(school["website"])
+                    and str(school["website"]).strip() != ""
+                ):
+
+                    website = str(
+                        school["website"]
+                    ).strip()
+
+                    # Add https:// if dataset does not include it
+                    if not website.startswith(
+                        ("http://", "https://")
+                    ):
+
+                        website = (
+                            "https://" + website
+                        )
+
+
                     st.link_button(
                         "Visit school website ↗",
-                        school["website"]
+                        website
                     )
