@@ -1459,151 +1459,212 @@ if (
 
 
         # ==================================================
-        # TOP MATCH COMPARISON
-        # ==================================================
+# TOP MATCH COMPARISON
+# ==================================================
 
-        st.subheader(
-            "📊 How your score compares with the top matches"
+st.subheader(
+    "📊 Top ranked matches — historical COP position"
+)
+
+st.caption(
+    "Schools are shown in recommendation order. "
+    "The horizontal position shows only how the student's score "
+    "compares with each school's historical COP."
+)
+
+
+if not filtered_matches.empty:
+
+    chart_data = (
+        filtered_matches
+        .head(10)
+        .copy()
+    )
+
+
+    # ----------------------------------------------
+    # DISPLAY FIELDS
+    # ----------------------------------------------
+
+    chart_data[
+        "School"
+    ] = (
+        chart_data[
+            "school_name"
+        ]
+    )
+
+
+    chart_data[
+        "AL points stronger"
+    ] = (
+        chart_data[
+            "cop_margin"
+        ]
+    )
+
+
+    chart_data[
+        "Historical COP"
+    ] = (
+        chart_data[
+            "cutoff"
+        ]
+    )
+
+
+    chart_data[
+        "Match category"
+    ] = (
+        chart_data[
+            "match_label"
+        ]
+    )
+
+
+    chart_data[
+        "Rank"
+    ] = (
+        range(
+            1,
+            len(chart_data) + 1
         )
+    )
 
-        st.caption(
-            "The chart shows how many AL points stronger the student's "
-            "score is than each school's historical cut-off point."
+
+    # ----------------------------------------------
+    # DOT PLOT
+    # ----------------------------------------------
+
+    fig = px.scatter(
+        chart_data,
+        x="AL points stronger",
+        y="School",
+        hover_data={
+            "Rank": True,
+            "Historical COP": True,
+            "Match category": True,
+            "AL points stronger": True,
+            "School": False
+        }
+    )
+
+
+    fig.update_traces(
+        marker=dict(
+            size=14
         )
+    )
 
 
-        if not filtered_matches.empty:
+    # ----------------------------------------------
+    # KEEP RECOMMENDATION ORDER
+    # ----------------------------------------------
 
-            chart_data = (
-                filtered_matches
-                .head(10)
-                .copy()
-            )
-
-
+    fig.update_yaxes(
+        categoryorder="array",
+        categoryarray=(
             chart_data[
                 "School"
-            ] = (
-                chart_data[
-                    "school_name"
-                ]
+            ]
+            .tolist()[::-1]
+        ),
+        title=""
+    )
+
+
+    # ----------------------------------------------
+    # X AXIS
+    # ----------------------------------------------
+
+    max_margin = int(
+        chart_data[
+            "AL points stronger"
+        ].max()
+    )
+
+
+    fig.update_xaxes(
+        dtick=1,
+        range=[
+            -0.5,
+            max(
+                4,
+                max_margin + 1
             )
+        ],
+        title=(
+            "AL points stronger than historical COP"
+        )
+    )
 
 
-            chart_data[
-                "AL points stronger"
-            ] = (
-                chart_data[
-                    "cop_margin"
-                ]
-            )
+    # ----------------------------------------------
+    # REFERENCE LINE AT ZERO
+    # ----------------------------------------------
+
+    fig.add_vline(
+        x=0,
+        line_dash="dot"
+    )
 
 
-            chart_data[
-                "Historical COP"
-            ] = (
-                chart_data[
-                    "cutoff"
-                ]
-            )
+    # ----------------------------------------------
+    # LAYOUT
+    # ----------------------------------------------
+
+    fig.update_layout(
+        height=max(
+            420,
+            len(chart_data)
+            * 44
+        ),
+        showlegend=False,
+        margin=dict(
+            l=10,
+            r=10,
+            t=10,
+            b=10
+        )
+    )
 
 
-            chart_data[
-                "Match category"
-            ] = (
-                chart_data[
-                    "match_label"
-                ]
-            )
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
 
 
-            fig = px.bar(
-                chart_data,
-                x="AL points stronger",
-                y="School",
-                orientation="h",
-                hover_data={
-                    "Historical COP": True,
-                    "Match category": True,
-                    "AL points stronger": True,
-                    "School": False
-                }
-            )
+    # ----------------------------------------------
+    # EXPLANATION
+    # ----------------------------------------------
+
+    st.caption(
+        "**How to read this:** "
+        "0 = at historical COP · "
+        "1–2 = Competitive · "
+        "3+ = Comfortable."
+    )
 
 
-            fig.update_yaxes(
-                categoryorder="array",
-                categoryarray=(
-                    chart_data[
-                        "School"
-                    ]
-                    .tolist()[::-1]
-                ),
-                title=""
-            )
+    st.caption(
+        "Recommendation order also considers the preferred zone, "
+        "selected interests and IP preference where applicable. "
+        "The COP margin alone does not determine the ranking."
+    )
 
 
-            max_margin = int(
-                chart_data[
-                    "AL points stronger"
-                ].max()
-            )
+    if len(
+        filtered_matches
+    ) > 10:
+
+        st.caption(
+            "The chart shows the first 10 ranked matches. "
+            "All matching schools are listed below."
+        )
 
 
-            fig.update_xaxes(
-                dtick=1,
-                range=[
-                    0,
-                    max(
-                        4,
-                        max_margin + 1
-                    )
-                ],
-                title=(
-                    "AL points stronger than historical COP"
-                )
-            )
-
-
-            fig.update_layout(
-                height=max(
-                    420,
-                    len(chart_data)
-                    * 44
-                ),
-                showlegend=False,
-                margin=dict(
-                    l=10,
-                    r=10,
-                    t=10,
-                    b=10
-                )
-            )
-
-
-            st.plotly_chart(
-                fig,
-                use_container_width=True
-            )
-
-
-            st.caption(
-                "**How to read this:** "
-                "0 = exactly at the historical COP · "
-                "1–2 = Competitive · "
-                "3+ = Comfortable."
-            )
-
-
-            if len(
-                filtered_matches
-            ) > 10:
-
-                st.caption(
-                    "The chart shows the first 10 ranked matches. "
-                    "All matching schools are listed below."
-                )
-
+st.divider()
 
         # ==================================================
         # SCHOOL CARDS
