@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.auth import require_password
 
 
 # ==================================================
@@ -11,6 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
+require_password()
 
 # ==================================================
 # PAGE HEADER
