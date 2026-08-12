@@ -1,18 +1,4 @@
 import streamlit as st
-from utils.auth import require_password
-
-
-# ==================================================
-# PAGE CONFIG
-# ==================================================
-
-st.set_page_config(
-    page_title="About Us | PSLE Navigator",
-    page_icon="ℹ️",
-    layout="wide"
-)
-
-require_password()
 
 
 # ==================================================
