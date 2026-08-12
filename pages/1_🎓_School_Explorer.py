@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import re
+from utils.auth import require_password
 
 
 # ==================================================
@@ -13,6 +14,8 @@ st.set_page_config(
     page_icon="🎓",
     layout="wide"
 )
+
+require_password()
 
 
 # ==================================================
