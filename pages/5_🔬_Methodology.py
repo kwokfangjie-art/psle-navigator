@@ -8,7 +8,7 @@ import streamlit as st
 st.title("🔬 Methodology")
 
 st.write(
-    "This page explains how PSLE Navigator processes user inputs, "
+    "This page explains how PathFinder processes user inputs, "
     "integrates structured datasets, builds a FAISS vector store, "
     "retrieves relevant information, performs document summarisation, "
     "and uses a large language model to generate grounded responses."
@@ -30,7 +30,7 @@ st.header("1. System overview")
 
 st.write(
     """
-PSLE Navigator combines deterministic Python logic with a
+PathFinder combines deterministic Python logic with a
 Retrieval-Augmented Generation (RAG) pipeline and a document summarisation
 workflow.
 
@@ -1008,7 +1008,7 @@ st.header("24. Prompt-injection safeguards")
 
 st.write(
     """
-PSLE Navigator applies several prompt-injection safeguards.
+PathFinder applies several prompt-injection safeguards.
 """
 )
 
@@ -1268,6 +1268,6 @@ information.
 st.divider()
 
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone · "
+    "PathFinder · AI Bootcamp Capstone · "
     "LangChain + FAISS RAG + GenAI document summarisation"
 )
