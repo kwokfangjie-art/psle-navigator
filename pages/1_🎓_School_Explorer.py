@@ -1,6 +1,32 @@
 import streamlit as st
 import pandas as pd
+import re
 
+
+def normalise_school_name(name):
+    """
+    Creates a standardised school name used only for matching datasets.
+    The original school name is still used for display.
+    """
+
+    if pd.isna(name):
+        return ""
+
+    name = str(name).strip().lower()
+
+    # Remove common suffixes that may appear in one dataset but not another
+    name = re.sub(r"\s*\(secondary\)\s*$", "", name)
+
+    # Standardise apostrophes
+    name = name.replace("’", "'")
+
+    # Remove punctuation
+    name = re.sub(r"[^a-z0-9\s]", " ", name)
+
+    # Collapse multiple spaces
+    name = re.sub(r"\s+", " ", name).strip()
+
+    return name
 
 # ==================================================
 # PAGE CONFIG
@@ -51,26 +77,35 @@ def load_school_data():
         }
     )
 
-    df["school_name"] = df["school_name"].str.title()
+    df["school_key"] = df["school_name"].apply(
+    normalise_school_name
+)
 
     keep_columns = [
-        "school_name",
-        "gender",
-        "zone",
-        "type_code",
-        "mainlevel_code",
-        "sap",
-        "ip",
-        "website"
-    ]
+    "school_name",
+    "school_key",
+    "gender",
+    "zone",
+    "type_code",
+    "mainlevel_code",
+    "sap",
+    "ip",
+    "website"
+]
 
     return df[keep_columns].copy()
 
 
 @st.cache_data
 def load_psle_ranges():
-    return pd.read_csv("data/psle_ranges.csv")
 
+    df = pd.read_csv("data/psle_ranges.csv")
+
+    df["school_key"] = df["school_name"].apply(
+        normalise_school_name
+    )
+
+    return df
 
 schools = load_school_data()
 psle_ranges = load_psle_ranges()
@@ -437,10 +472,11 @@ if st.button(
     # ----------------------------------------------
 
     matches = matches.merge(
-        selected_ranges,
-        on="school_name",
-        how="inner"
-    )
+    selected_ranges,
+    on="school_key",
+    how="inner",
+    suffixes=("", "_psle")
+)
 
 
     # ----------------------------------------------
