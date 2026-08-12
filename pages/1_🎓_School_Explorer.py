@@ -689,6 +689,27 @@ if st.button(
     disabled=not profile_complete
 ):
 
+        # ==================================================
+    # SAVE SHARED STUDENT PROFILE
+    # ==================================================
+
+    st.session_state["student_profile"] = {
+        "name": student_name.strip() if student_name else "Student",
+        "gender": gender,
+        "overall_al": overall_al,
+        "english_al": scores["English Language"],
+        "mother_tongue_al": scores["Mother Tongue Language"],
+        "maths_al": scores["Mathematics"],
+        "science_al": scores["Science"],
+        "result_type": result_type,
+        "pathway": posting_pathway,
+        "preferred_zone": preferred_zone,
+        "ip_priority": ip_priority,
+        "dsa_interest": dsa_interest,
+        "interests": interests,
+        "higher_mt": higher_mt
+    }
+    
     # ==================================================
     # PROFILE SUMMARY
     # ==================================================
