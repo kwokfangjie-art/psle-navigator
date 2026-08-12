@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.auth import require_password
 
 
 # ==================================================
@@ -10,6 +11,8 @@ st.set_page_config(
     page_icon="ℹ️",
     layout="wide"
 )
+
+require_password()
 
 
 # ==================================================
