@@ -349,15 +349,12 @@ def classify_match(
 ):
 
     if margin >= 3:
-
         return "Comfortable"
 
     elif margin >= 1:
-
         return "Competitive"
 
     else:
-
         return "At historical COP"
 
 
@@ -374,19 +371,11 @@ def build_school_matches(
     interests
 ):
 
-    # ----------------------------------------------
-    # Select pathway
-    # ----------------------------------------------
-
     selected_cop = psle_data[
         psle_data["pathway"]
         == posting_pathway
     ].copy()
 
-
-    # ----------------------------------------------
-    # Join school information
-    # ----------------------------------------------
 
     matches = schools.merge(
         selected_cop,
@@ -437,7 +426,6 @@ def build_school_matches(
 
 
     if matches.empty:
-
         return matches
 
 
@@ -456,7 +444,7 @@ def build_school_matches(
 
 
     # ----------------------------------------------
-    # Zone
+    # Zone match
     # ----------------------------------------------
 
     if preferred_zone != "Any":
@@ -472,7 +460,7 @@ def build_school_matches(
 
 
     # ----------------------------------------------
-    # IP
+    # IP match
     # ----------------------------------------------
 
     matches["ip_match"] = (
@@ -490,7 +478,7 @@ def build_school_matches(
 
 
     # ----------------------------------------------
-    # Interests
+    # Interest matches
     # ----------------------------------------------
 
     matches["matched_interests"] = (
@@ -512,7 +500,7 @@ def build_school_matches(
 
 
     # ----------------------------------------------
-    # Preserve existing ranking logic
+    # Ranking
     # ----------------------------------------------
 
     sort_columns = [
@@ -750,13 +738,9 @@ with st.container(
 
         with score_summary_col2:
 
-            st.success(
-                "✓ All four subject scores are complete."
-            )
-
             st.caption(
-                "Lower overall AL scores indicate "
-                "stronger PSLE performance."
+                "✓ Overall score calculated from the "
+                "four selected subjects."
             )
 
 
@@ -830,12 +814,11 @@ with st.container(
     with preference_col1:
 
         posting_pathway = st.selectbox(
-            "Admission pathway to explore",
+            "Posting pathway to explore",
             options=available_pathways,
             help=(
-                "The available choices reflect the "
-                "historical COP data currently loaded "
-                "into the prototype."
+                "The available choices reflect the historical "
+                "COP data currently loaded into the prototype."
             )
         )
 
@@ -928,6 +911,12 @@ with st.container(
         )
 
 
+    st.caption(
+        "ℹ️ CCA matches indicate related school activities, "
+        "not DSA-Sec availability or eligibility."
+    )
+
+
     st.write("")
 
     programme_col1, programme_col2 = (
@@ -947,12 +936,6 @@ with st.container(
             index=1
         )
 
-        st.caption(
-            "Used to personalise guidance. "
-            "CCA availability is not treated as evidence "
-            "that the school offers DSA-Sec in that area."
-        )
-
 
     with programme_col2:
 
@@ -968,9 +951,10 @@ with st.container(
         )
 
 
-    st.warning(
-        "CCA matches show related school activities only. "
-        "They do not indicate DSA-Sec availability or eligibility."
+    st.caption(
+        "DSA-Sec and Higher Mother Tongue preferences do not "
+        "change School Explorer rankings, but they can help "
+        "personalise AI Navigator guidance."
     )
 
 
@@ -1005,7 +989,7 @@ if not all_scores_selected:
 if posting_pathway is None:
 
     missing_items.append(
-        "admission pathway"
+        "posting pathway"
     )
 
 
@@ -1998,6 +1982,7 @@ if (
         # ==================================================
 
         st.divider()
+
 
         with st.container(
             border=True
