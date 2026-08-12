@@ -111,7 +111,9 @@ methodology_page = st.Page(
 # ROLE-BASED NAVIGATION
 # ==================================================
 
-if st.session_state.get("role") == "Admin":
+if st.session_state.get(
+    "role"
+) == "Admin":
 
     navigation = st.navigation(
         [
