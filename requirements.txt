@@ -4,3 +4,8 @@ requests
 beautifulsoup4
 plotly
 openai
+langchain
+langchain-openai
+langchain-community
+faiss-cpu
+pypdf
