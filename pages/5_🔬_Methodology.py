@@ -9,13 +9,14 @@ st.title("🔬 Methodology")
 
 st.write(
     "This page explains how PSLE Navigator processes user inputs, "
-    "integrates multiple datasets, retrieves relevant information, "
-    "and uses a large language model to generate grounded responses."
+    "integrates structured datasets, builds a FAISS vector store, "
+    "retrieves relevant information, and uses a large language model "
+    "to generate grounded responses."
 )
 
 st.info(
-    "The application is an educational prototype. "
-    "Its outputs are not official MOE advice and must be verified independently."
+    "The application is an educational prototype developed by a team of two. "
+    "Its outputs are not official MOE advice and should be verified independently."
 )
 
 st.divider()
@@ -29,28 +30,29 @@ st.header("1. System overview")
 
 st.write(
     """
-PSLE Navigator combines deterministic Python logic with an LLM-powered
-assistant.
+PSLE Navigator combines deterministic Python logic with a
+Retrieval-Augmented Generation (RAG) pipeline.
 
-The application deliberately separates tasks that are better handled by
-code from tasks that are better handled by a language model.
+The application separates tasks that are better handled by conventional
+code from tasks that benefit from a language model.
 
 **Python is used for:**
 - PSLE AL calculation;
-- filtering and ranking schools;
-- comparing student scores against historical COPs;
-- school gender matching;
+- school filtering and ranking;
+- historical COP comparison;
+- gender matching;
 - zone matching;
 - CCA-interest matching;
-- dataset joins; and
-- retrieving school-specific records.
+- structured data joins;
+- named-school lookup; and
+- selection of relevant school records.
 
-**The LLM is used for:**
-- explaining policies and pathways;
-- answering follow-up questions;
-- personalising explanations;
-- interpreting retrieved school information; and
-- presenting information in plain language.
+**The RAG / LLM pipeline is used for:**
+- semantic retrieval from custom reference documents;
+- policy and process explanations;
+- personalised follow-up questions;
+- conversational responses; and
+- grounded natural-language generation.
 """
 )
 
@@ -61,43 +63,85 @@ User
   v
 Streamlit Interface
   |
-  +----------------------------+
-  |                            |
-  v                            v
-School Explorer            AI Navigator
-  |                            |
-  v                            v
-Python matching          Intent classification
-  |                            |
-  v                            v
-Local datasets           Relevant data retrieval
-  |                            |
-  v                            v
-Ranked results           Context construction
-                               |
-                               v
-                              LLM
-                               |
-                               v
-                        Grounded response
+  +-----------------------------------+
+  |                                   |
+  v                                   v
+School Explorer                  AI Navigator
+  |                                   |
+  v                                   v
+Structured datasets              Intent classification
+  |                                   |
+  v                                   v
+Python matching              Structured retrieval
+                                      +
+                               FAISS RAG retrieval
+                                      |
+                                      v
+                               Combined context
+                                      |
+                                      v
+                                     LLM
+                                      |
+                                      v
+                               Grounded response
 """,
     language="text"
 )
 
 
 # ==================================================
-# 2. DATA SOURCES
+# 2. USER ROLES AND LOGIN
 # ==================================================
 
-st.header("2. Data sources")
+st.header("2. User roles and login")
 
 st.write(
     """
-The prototype consolidates information from multiple sources.
+The application includes a simple two-user authentication system.
 
-The main local datasets are:
+Credentials are stored using Streamlit Secrets rather than in public
+source code.
 """
 )
+
+st.markdown(
+    """
+**Admin role**
+- access to School Explorer;
+- access to AI Navigator;
+- access to Knowledge Base document upload and FAISS index management;
+- access to About Us and Methodology.
+
+**User role**
+- access to School Explorer;
+- access to AI Navigator;
+- access to About Us and Methodology;
+- no access to Knowledge Base administration.
+"""
+)
+
+st.write(
+    """
+Authentication status and role information are stored in Streamlit
+`session_state` for the active session.
+"""
+)
+
+
+# ==================================================
+# 3. DATA SOURCES
+# ==================================================
+
+st.header("3. Data sources")
+
+st.write(
+    """
+The prototype uses both structured data and unstructured reference
+documents.
+"""
+)
+
+st.subheader("Structured datasets")
 
 st.markdown(
     """
@@ -108,7 +152,7 @@ Used for:
 - school type;
 - gender profile;
 - geographical zone;
-- IP indicator;
+- Integrated Programme indicator;
 - SAP indicator; and
 - school website.
 
@@ -124,36 +168,54 @@ Used for:
 Used for:
 - historical cut-off points;
 - pathway-specific school matching; and
-- comparison against the student's overall AL score.
+- comparison with the student's overall AL score.
 """
 )
 
 st.warning(
-    "The historical COP dataset is curated for this prototype and "
-    "does not represent an official real-time admissions database."
+    "The historical COP dataset is curated for the prototype and "
+    "does not represent a real-time official admissions database."
+)
+
+
+st.subheader("RAG document corpus")
+
+st.write(
+    """
+The custom knowledge base contains a small set of documents covering:
+
+- PSLE scoring;
+- Secondary 1 Posting;
+- Full Subject-Based Banding and Posting Groups;
+- DSA-Sec;
+- Integrated Programme;
+- Higher Mother Tongue and SAP schools; and
+- considerations when choosing a secondary school.
+"""
 )
 
 
 # ==================================================
-# 3. DATA PREPARATION
+# 4. DATA PREPARATION
 # ==================================================
 
-st.header("3. Data preparation")
+st.header("4. Structured data preparation")
 
 st.write(
     """
-The raw datasets use slightly different school naming conventions.
+The structured datasets use different naming conventions for schools.
 
-For example, one source may use:
+For example:
 
 `RIVER VALLEY HIGH SCHOOL`
 
-while another may use:
+and:
 
 `River Valley High School (Secondary)`
 
-To join these records reliably, PSLE Navigator creates a normalised
-school key.
+may refer to the same school.
+
+To join these records, the application creates a normalised school key.
 """
 )
 
@@ -183,65 +245,59 @@ Normalised school key
 )
 
 st.write(
-    """
-The normalised key is used only for dataset matching.
-
-The original school name from the main school directory is retained for
-display to the user.
-"""
+    "The original school name is retained for display."
 )
 
 
 # ==================================================
-# 4. STUDENT PROFILE
+# 5. STUDENT PROFILE
 # ==================================================
 
-st.header("4. Student profile")
+st.header("5. Student profile")
 
 st.write(
     """
-The School Explorer collects a set of non-sensitive inputs to personalise
-the experience.
+The School Explorer collects non-sensitive information to personalise the
+experience.
 
-These may include:
+Inputs include:
 
 - student name or nickname;
 - gender;
-- four PSLE subject AL scores;
+- four subject AL scores;
 - predicted or actual result status;
-- pathway being explored;
+- selected pathway;
 - preferred school zone;
 - IP preference;
 - DSA-Sec interest;
-- selected interests and talents; and
+- interests and talents; and
 - Higher Mother Tongue status.
 """
 )
 
 st.write(
     """
-The four subject AL scores are added using deterministic Python logic to
-produce the overall PSLE score.
+The four subject AL scores are summed using deterministic Python logic.
 
-The profile is then stored in Streamlit `session_state`, allowing the
-School Explorer and AI Navigator to share the same profile during the
-active session.
+The resulting profile is stored in Streamlit `session_state`, allowing
+the AI Navigator to reuse the same profile without asking the user to
+enter the information again.
 """
 )
 
 
 # ==================================================
-# 5. USE CASE 1
+# 6. USE CASE 1
 # ==================================================
 
-st.header("5. Use Case 1 — School Explorer")
+st.header("6. Use Case 1 — School Explorer")
 
 st.subheader("Objective")
 
 st.write(
     """
-The School Explorer helps users identify potential school matches based on
-the student profile and historical school information.
+The School Explorer helps users explore potential secondary school
+matches using structured school information and the student's profile.
 """
 )
 
@@ -258,26 +314,25 @@ Validate required inputs
 Calculate overall PSLE AL
         |
         v
-Select historical COP records
-for chosen pathway
+Select COP records for chosen pathway
         |
         v
-Join COP data with MOE school directory
+Join COP records with school directory
         |
         v
-Filter by school gender
+Filter by gender
         |
         v
-Compare student AL with historical COP
+Compare AL with historical COP
         |
         v
-Calculate zone match
+Calculate preferred-zone match
         |
         v
-Match interests against MOE CCA data
+Match interests against school CCA records
         |
         v
-Rank potential school matches
+Rank potential schools
         |
         v
 Display filters, metrics,
@@ -288,27 +343,24 @@ visualisation and school cards
 
 
 # ==================================================
-# 6. SCHOOL MATCHING LOGIC
+# 7. SCHOOL MATCHING LOGIC
 # ==================================================
 
-st.header("6. School matching logic")
+st.header("7. School matching logic")
 
 st.write(
     """
-For the historical COP comparison, lower PSLE AL scores are treated as
-stronger results.
+Lower PSLE AL scores represent stronger results.
 
-A school remains in the candidate set where the student's score is equal
-to or stronger than the historical COP recorded in the prototype dataset.
+A school is retained where the student's overall AL is equal to or
+stronger than the historical COP stored in the prototype dataset.
 """
 )
 
-st.subheader("Match categories")
+st.subheader("Prototype match categories")
 
 st.markdown(
     """
-The application uses three simple explanatory categories:
-
 - **Comfortable** — student is at least 3 AL points stronger than the historical COP.
 - **Competitive** — student is 1–2 AL points stronger than the historical COP.
 - **Borderline** — student is exactly at the historical COP.
@@ -316,92 +368,226 @@ The application uses three simple explanatory categories:
 )
 
 st.warning(
-    "These categories are prototype labels only. "
+    "These labels are explanatory prototype categories only. "
     "They are not probabilities and do not predict admission."
 )
 
 
 # ==================================================
-# 7. CCA-INTEREST MATCHING
+# 8. CCA-INTEREST MATCHING
 # ==================================================
 
-st.header("7. CCA-interest matching")
+st.header("8. CCA-interest matching")
 
 st.write(
     """
-Selected student interests are mapped to related descriptions in the MOE
-CCA dataset.
+Selected interests are mapped to related CCA descriptions in the
+structured CCA dataset.
 
 Examples include:
 
 - Football → FOOTBALL
 - Robotics & Coding → ROBOTICS / INFOCOMM TECHNOLOGY (COMPUTING)
 - Debate → DEBATING AND PUBLIC SPEAKING
-- Student Leadership → STUDENT LEADERSHIP-related entries
+- Student Leadership → STUDENT LEADERSHIP-related records
 """
 )
 
 st.code(
     """
-Selected student interest
+Selected interest
         |
         v
 Interest-to-CCA mapping
         |
         v
-Retrieve school's listed CCAs
+Retrieve school's CCA records
         |
         v
-Check for matching CCA descriptions
+Compare mapped activity names
         |
         v
 Count matched interests
         |
         v
-Use match count as a ranking factor
+Use match count in ranking
 """,
     language="text"
 )
 
 st.warning(
-    "A CCA match does not mean that the school offers DSA-Sec "
-    "for the same activity."
+    "CCA availability does not mean the same activity is offered through DSA-Sec."
 )
 
 
 # ==================================================
-# 8. DATA VISUALISATION
+# 9. DATA VISUALISATION
 # ==================================================
 
-st.header("8. Data visualisation")
+st.header("9. Data visualisation")
 
 st.write(
     """
-The School Explorer uses a Plotly scatter visualisation to compare the
-student's overall AL score with the historical COPs of shortlisted schools.
+The School Explorer uses Plotly to visualise each shortlisted school's
+historical COP against the student's overall AL.
 
-A vertical reference line represents the student's score, while each
-school is plotted using its historical COP.
+The student's score is shown as a vertical reference line.
 
-This allows users to see the student's relative position across multiple
-schools rather than relying only on text labels.
+This gives users a visual representation of relative position instead of
+relying only on text labels.
 """
 )
 
 
 # ==================================================
-# 9. USE CASE 2
+# 10. KNOWLEDGE BASE UPLOAD
 # ==================================================
 
-st.header("9. Use Case 2 — AI Navigator")
+st.header("10. Admin Knowledge Base")
+
+st.write(
+    """
+The Admin role includes a Knowledge Base page where reference documents
+can be uploaded.
+
+Supported formats are PDF and TXT.
+"""
+)
+
+st.code(
+    """
+Admin uploads document
+        |
+        v
+Save document
+        |
+        v
+Extract text
+        |
+        v
+Create LangChain Documents
+        |
+        v
+Split into text chunks
+        |
+        v
+Generate embeddings
+        |
+        v
+Store in FAISS
+""",
+    language="text"
+)
+
+
+# ==================================================
+# 11. DOCUMENT TEXT EXTRACTION
+# ==================================================
+
+st.header("11. Document processing")
+
+st.write(
+    """
+TXT files are read directly as text.
+
+PDF files are processed using PyPDF. Text is extracted page by page so
+page information can be retained as metadata.
+"""
+)
+
+st.write(
+    """
+Each extracted section is represented as a LangChain `Document` with
+metadata such as:
+
+- source filename; and
+- page number, where available.
+"""
+)
+
+
+# ==================================================
+# 12. TEXT CHUNKING
+# ==================================================
+
+st.header("12. Text chunking")
+
+st.write(
+    """
+Documents are split using LangChain's
+`RecursiveCharacterTextSplitter`.
+
+The current prototype uses:
+
+- chunk size: approximately 900 characters;
+- chunk overlap: approximately 150 characters.
+"""
+)
+
+st.write(
+    """
+Overlap is used so that important context near a chunk boundary is less
+likely to be lost during retrieval.
+"""
+)
+
+
+# ==================================================
+# 13. EMBEDDINGS
+# ==================================================
+
+st.header("13. Embeddings")
+
+st.write(
+    """
+Each text chunk is converted into an embedding using the OpenAI embedding
+model:
+
+`text-embedding-3-small`
+
+An embedding represents the semantic meaning of a text chunk as a numeric
+vector.
+
+This allows the system to compare a user's question with document chunks
+based on semantic similarity rather than exact keyword matching.
+"""
+)
+
+
+# ==================================================
+# 14. FAISS VECTOR STORE
+# ==================================================
+
+st.header("14. FAISS vector store")
+
+st.write(
+    """
+The document embeddings are stored using FAISS.
+
+FAISS enables efficient vector similarity search over the custom
+knowledge base.
+
+The vector store is built through LangChain's FAISS integration and saved
+locally as:
+
+- `index.faiss`
+- `index.pkl`
+"""
+)
+
+
+# ==================================================
+# 15. USE CASE 2
+# ==================================================
+
+st.header("15. Use Case 2 — AI Navigator")
 
 st.subheader("Objective")
 
 st.write(
     """
-The AI Navigator provides conversational explanations of PSLE and
-secondary-school admission topics while using the student's shared profile
-and retrieved dataset records where relevant.
+The AI Navigator provides conversational guidance using both structured
+school data and a RAG document knowledge base.
 """
 )
 
@@ -416,46 +602,48 @@ Prompt Chain Step 1:
 Intent classification
         |
         v
-Detect named schools / question type
+Named-school detection
         |
-        v
-Prompt Chain Step 2:
-Retrieve relevant data
-        |
-        +-----------------------------+
-        |                             |
-        v                             v
-Student-profile matches        Named-school records
-        |                             |
-        +-------------+---------------+
-                      |
-                      v
-Build grounded reference context
-                      |
-                      v
-Combine with system instructions
-and student profile
-                      |
-                      v
-Final LLM call
-                      |
-                      v
-Grounded personalised response
+        +------------------------------+
+        |                              |
+        v                              v
+Structured retrieval              FAISS retrieval
+        |                              |
+        v                              v
+School / COP / CCA              Relevant document
+records                          chunks
+        |                              |
+        +---------------+--------------+
+                        |
+                        v
+              Combine retrieved context
+                        |
+                        v
+             Add student profile context
+                        |
+                        v
+                 Final LLM call
+                        |
+                        v
+             Grounded personalised answer
+                        |
+                        v
+              Display retrieved sources
 """,
     language="text"
 )
 
 
 # ==================================================
-# 10. PROMPT CHAINING
+# 16. PROMPT CHAINING
 # ==================================================
 
-st.header("10. Prompt chaining")
+st.header("16. Prompt chaining")
 
 st.write(
     """
-The AI Navigator uses more than one model call instead of relying on a
-single large prompt.
+The AI Navigator uses multiple stages rather than relying on one large
+prompt.
 """
 )
 
@@ -463,7 +651,7 @@ st.subheader("Stage 1 — Intent classification")
 
 st.write(
     """
-The first model call classifies the question into a category such as:
+The first model call classifies the user's question into a category such as:
 
 - school recommendation;
 - school-specific question;
@@ -480,15 +668,26 @@ st.subheader("Stage 2 — Retrieval")
 
 st.write(
     """
-Based on the identified intent, Python retrieves relevant local records.
+The application then performs two types of retrieval:
 
-For example:
+**Structured retrieval**
 
-- a school recommendation request retrieves profile-compatible schools;
-- a named-school question retrieves school details, historical COP records
-  and CCA offerings; and
-- an interest-related request retrieves schools that match the student's
-  selected interests.
+Used for:
+- school details;
+- historical COP records;
+- CCA records; and
+- profile-based school recommendations.
+
+**FAISS semantic retrieval**
+
+Used for:
+- PSLE policy information;
+- S1 Posting explanations;
+- Full SBB / Posting Groups;
+- DSA-Sec guidance;
+- IP;
+- HMT / SAP; and
+- school-choice guidance.
 """
 )
 
@@ -496,79 +695,140 @@ st.subheader("Stage 3 — Response generation")
 
 st.write(
     """
-The retrieved records are inserted into a separate reference-data section.
-
 The final LLM call receives:
 
 - system instructions;
-- the student's profile;
-- the classified question intent;
-- retrieved reference records; and
+- student profile;
+- classified intent;
+- structured records;
+- retrieved RAG chunks; and
 - recent conversation history.
+
+The model then generates the final grounded response.
 """
 )
 
 
 # ==================================================
-# 11. RETRIEVAL AND GROUNDING
+# 17. HYBRID RETRIEVAL
 # ==================================================
 
-st.header("11. Retrieval and grounding")
+st.header("17. Hybrid retrieval architecture")
 
 st.write(
     """
-For school-specific questions, the AI is not expected to rely solely on
-its pre-trained knowledge.
-
-Relevant records are retrieved from the local datasets and supplied to the
-model as reference information.
+The prototype uses hybrid retrieval because structured and unstructured
+information require different retrieval techniques.
 """
 )
 
 st.code(
     """
-Question:
-"Does Anderson offer Robotics as a CCA?"
-
-        |
-        v
-
-Named-school detection:
-"Anderson"
-        |
-        v
-Resolve to:
-ANDERSON SECONDARY SCHOOL
-        |
-        v
-Retrieve CCA records
-        |
-        v
-ROBOTICS found in dataset
-        |
-        v
-Send retrieved record to LLM
-        |
-        v
-Answer based on supplied evidence
+               User Question
+                    |
+                    v
+             Intent Classification
+                    |
+          +---------+---------+
+          |                   |
+          v                   v
+Structured Retrieval      FAISS Retrieval
+          |                   |
+School/COP/CCA data        Document chunks
+          |                   |
+          +---------+---------+
+                    |
+                    v
+              Combined Context
+                    |
+                    v
+                   LLM
 """,
     language="text"
 )
 
 st.write(
     """
-If a school-specific fact is not found in the retrieved records, the model
-is instructed to say that the prototype does not contain enough
-information rather than inventing the answer.
+For example:
+
+- "Does Anderson offer Robotics?" is answered primarily using structured
+  CCA data.
+
+- "How does DSA-Sec work?" is answered primarily using the FAISS document
+  knowledge base.
+
+- A complex school-choice question may use both.
 """
 )
 
 
 # ==================================================
-# 12. NAMED-SCHOOL DETECTION
+# 18. RAG RETRIEVAL
 # ==================================================
 
-st.header("12. Named-school detection")
+st.header("18. RAG retrieval")
+
+st.write(
+    """
+For each question, the user's query is converted into an embedding using
+the same embedding model used when building the FAISS index.
+
+FAISS performs semantic similarity search and currently retrieves up to
+four relevant chunks.
+
+The retrieved chunks are then included in the final model context.
+"""
+)
+
+st.code(
+    """
+Question
+   |
+   v
+Question embedding
+   |
+   v
+FAISS similarity search
+   |
+   v
+Top relevant chunks
+   |
+   v
+Add chunks to prompt
+   |
+   v
+LLM answer
+""",
+    language="text"
+)
+
+
+# ==================================================
+# 19. RAG SOURCES
+# ==================================================
+
+st.header("19. Source visibility")
+
+st.write(
+    """
+When RAG chunks are retrieved, the AI Navigator provides an expandable
+"RAG sources used" section.
+
+This can show:
+
+- document filename; and
+- page number, where available.
+
+This makes the retrieval process more transparent to the user.
+"""
+)
+
+
+# ==================================================
+# 20. NAMED-SCHOOL DETECTION
+# ==================================================
+
+st.header("20. Named-school detection")
 
 st.write(
     """
@@ -583,29 +843,29 @@ instead of:
 
 `ANDERSON SECONDARY SCHOOL`
 
-The application therefore generates possible school aliases.
+The application generates possible aliases from official school names.
 """
 )
 
 st.write(
     """
-Only aliases that uniquely identify a single school are retained.
+Only aliases that uniquely identify one school are retained.
 
-This helps reduce the risk of incorrectly resolving an ambiguous short
-school name.
+This reduces the risk of resolving an ambiguous shortened name to the
+wrong school.
 """
 )
 
 
 # ==================================================
-# 13. PROMPT ENGINEERING
+# 21. PROMPT ENGINEERING
 # ==================================================
 
-st.header("13. Prompt engineering")
+st.header("21. Prompt engineering")
 
 st.write(
     """
-The AI system prompt contains several groups of instructions.
+The final system prompt contains several instruction groups.
 """
 )
 
@@ -613,45 +873,43 @@ st.markdown(
     """
 **Role instructions**
 
-Define PSLE Navigator as an educational assistant focused on Singapore's
+Define PSLE Navigator as an educational assistant for Singapore's
 PSLE-to-secondary-school transition.
-
-**Scope instructions**
-
-Limit the assistant to relevant topics such as PSLE, S1 Posting, DSA-Sec,
-IP, SAP, Higher Mother Tongue, secondary schools and CCAs.
 
 **Grounding instructions**
 
-Require school-specific answers to rely on retrieved reference data.
+Require the model to base factual answers on retrieved evidence.
 
-**Personalisation instructions**
+**Source priority**
 
-Tell the model to use the student profile only where relevant.
+Structured data is preferred for school-specific facts, while RAG
+documents are preferred for policy and process explanations.
 
-**Uncertainty instructions**
+**Personalisation**
 
-Require the model to state when information cannot be confirmed.
+Use the shared student profile where relevant.
 
-**Response-style instructions**
+**Uncertainty handling**
 
-Use British English, clear headings, short paragraphs and concise
-explanations.
+Require the model to state when available evidence does not support an
+answer.
+
+**Response style**
+
+Use British English and concise, parent-friendly explanations.
 """
 )
 
 
 # ==================================================
-# 14. PROMPT-INJECTION SAFEGUARDS
+# 22. PROMPT-INJECTION SAFEGUARDS
 # ==================================================
 
-st.header("14. Prompt-injection safeguards")
+st.header("22. Prompt-injection safeguards")
 
 st.write(
     """
-The assignment requires consideration of prompt-injection risks.
-
-PSLE Navigator applies several controls.
+PSLE Navigator applies several prompt-injection safeguards.
 """
 )
 
@@ -659,253 +917,210 @@ st.markdown(
     """
 **1. System instruction priority**
 
-The model is told not to follow user instructions that conflict with the
-application's system rules.
+User instructions cannot override the system rules.
 
 **2. Secret protection**
 
-The model is explicitly instructed never to reveal API keys, Streamlit
-Secrets, hidden prompts or internal configuration.
+The model is instructed not to reveal:
 
-**3. Reference-data isolation**
+- API keys;
+- Streamlit Secrets;
+- hidden prompts; or
+- internal configuration.
 
-Retrieved records are placed inside a clearly marked reference-data
-section.
+**3. Retrieved-document isolation**
 
-The model is explicitly told that reference data is factual information,
-not executable instructions.
+RAG chunks are wrapped inside a reference-data section.
 
-**4. Limited topic scope**
+The model is explicitly instructed that retrieved content is factual
+reference material rather than instructions.
 
-Clearly off-topic requests are declined.
+**4. Structured-data isolation**
 
-**5. Grounded school answers**
+Structured school records are also provided as reference information
+rather than executable instructions.
 
-The model is instructed not to invent school-specific information that is
-missing from the retrieved data.
+**5. Grounded answers**
+
+The assistant is instructed not to invent school-specific or policy facts
+that are not supported by retrieved evidence.
+
+**6. CCA / DSA distinction**
+
+The model must not infer that a school offers DSA-Sec simply because a
+related CCA exists.
 """
 )
 
 
 # ==================================================
-# 15. API KEY SECURITY
+# 23. API SECURITY
 # ==================================================
 
-st.header("15. API key security")
+st.header("23. API and credential security")
 
 st.write(
     """
-The OpenAI API key is not hard-coded into the source code.
+API keys and login credentials are stored using Streamlit Secrets.
 
-It is stored using Streamlit Community Cloud's Secrets feature and
-accessed by the application using:
+They are not hard-coded into the public GitHub repository.
+
+The application accesses the OpenAI API key through:
 
 `st.secrets["OPENAI_API_KEY"]`
-
-This prevents the API key from being exposed in the public GitHub
-repository.
 """
 )
 
 
 # ==================================================
-# 16. LLM DATA HANDLING
+# 24. CONVERSATION MEMORY
 # ==================================================
 
-st.header("16. LLM data handling")
+st.header("24. Conversation history")
 
 st.write(
     """
-The application sends relevant conversation content, student profile
-context and retrieved reference information to the LLM API when generating
-a response.
+Chat history is stored in Streamlit `session_state`.
 
-The prototype deliberately avoids collecting sensitive information such
-as NRIC numbers, home addresses or telephone numbers.
+Recent messages are included in subsequent model calls so that follow-up
+questions can retain conversational context.
 
-The Responses API calls in the AI Navigator are configured with
-`store=False`.
+The user can clear the conversation at any time.
 """
 )
 
 
 # ==================================================
-# 17. CONVERSATION MEMORY
+# 25. ERROR HANDLING
 # ==================================================
 
-st.header("17. Conversation memory")
+st.header("25. Error handling")
+
+st.markdown(
+    """
+The prototype includes basic error handling for:
+
+- incomplete student profiles;
+- empty school-search results;
+- unavailable FAISS indexes;
+- intent-classification failures;
+- failed LLM API calls;
+- missing school-specific information; and
+- missing RAG results.
+"""
+)
+
+
+# ==================================================
+# 26. LLM DATA HANDLING
+# ==================================================
+
+st.header("26. LLM data handling")
 
 st.write(
     """
-Chat messages are stored in Streamlit `session_state` during the current
-application session.
+Relevant user questions, recent conversation content, student profile
+context and retrieved evidence are sent to the LLM API when generating a
+response.
 
-Recent conversation messages are included in subsequent model calls so
-that the assistant can understand follow-up questions.
+The prototype intentionally avoids collecting sensitive personal
+information.
 
-The user can clear the conversation using the Clear button.
+LLM response calls are configured with `store=False`.
 """
 )
 
 
 # ==================================================
-# 18. PASSWORD PROTECTION
+# 27. DESIGN PRINCIPLES
 # ==================================================
 
-st.header("18. Password protection")
-
-st.write(
-    """
-The deployed prototype is protected by a simple password gate.
-
-The application password is stored using Streamlit Secrets rather than
-inside the public source code.
-
-Authentication status is stored in Streamlit `session_state` for the
-active session.
-"""
-)
-
-
-# ==================================================
-# 19. ERROR HANDLING
-# ==================================================
-
-st.header("19. Error handling")
-
-st.write(
-    """
-The prototype includes basic error-handling mechanisms.
-
-Examples include:
-
-- disabling the school-search button until required profile fields are
-  completed;
-- returning an empty-result message where no school matches are found;
-- falling back to a general question category if intent classification
-  fails;
-- returning a user-friendly error message if an LLM API call fails; and
-- stating when school-specific information is unavailable in the local
-  datasets.
-"""
-)
-
-
-# ==================================================
-# 20. DESIGN PRINCIPLES
-# ==================================================
-
-st.header("20. Design principles")
+st.header("27. Design principles")
 
 st.markdown(
     """
 **Deterministic logic for calculations**
 
-The LLM is not used to calculate PSLE totals or determine whether a score
-passes a historical COP threshold.
+The LLM is not used to calculate PSLE totals or compare scores against
+historical COP thresholds.
 
-**LLM for explanation**
+**RAG for policy information**
 
-The language model is used where natural-language interpretation and
-explanation provide value.
+Policy and process questions are grounded in a custom knowledge base.
+
+**Structured retrieval for school facts**
+
+School, COP and CCA information is retrieved directly from structured
+datasets.
 
 **Explainability**
 
-School cards explain why each school appears.
+The School Explorer explains why each school appears.
 
-**Source awareness**
+**Source transparency**
 
-The application distinguishes between school-directory information,
-historical COP data and CCA information.
+RAG sources can be displayed to the user.
 
-**Shared context**
+**Role separation**
 
-The School Explorer and AI Navigator use the same session-based student
-profile to reduce repeated user input.
+Knowledge-base management is restricted to the Admin role.
 """
 )
 
 
 # ==================================================
-# 21. APPLICATION NAVIGATION
+# 28. LIMITATIONS
 # ==================================================
 
-st.header("21. Application navigation")
-
-st.write(
-    """
-The application uses Streamlit's explicit multipage navigation.
-
-The top-level `app.py` file is responsible for:
-
-- page configuration;
-- password protection; and
-- defining the available navigation pages.
-
-The individual pages contain only their own page-specific logic.
-
-The main navigation contains:
-
-- Home;
-- School Explorer;
-- AI Navigator;
-- About Us; and
-- Methodology.
-"""
-)
-
-
-# ==================================================
-# 22. LIMITATIONS
-# ==================================================
-
-st.header("22. Limitations")
+st.header("28. Limitations")
 
 st.markdown(
     """
-- Historical COPs are not current-year guarantees.
-- The COP dataset is curated rather than a complete real-time national
-  dataset.
-- Affiliated-school priority is outside the current scope.
-- CCA information does not represent DSA-Sec talent-area information.
-- The AI may still generate incorrect or incomplete information.
-- Some policy explanations may become outdated as MOE policies change.
-- Student profile and chat history are currently session-based rather
-  than permanently stored.
-- The prototype does not provide real-time school vacancies or posting
-  results.
+- Historical COPs may change from year to year.
+- The COP dataset is curated and incomplete.
+- Affiliated-school priority is outside current scope.
+- CCA availability does not establish DSA-Sec availability.
+- The RAG corpus is intentionally small.
+- FAISS may retrieve a chunk that is only partially relevant.
+- The LLM may still generate inaccurate information.
+- Policies may change after the knowledge-base documents are created.
+- Uploaded files and the local FAISS index are not production-grade
+  persistent storage.
+- Student profiles and conversations are session-based.
 """
 )
 
 
 # ==================================================
-# 23. POSSIBLE FUTURE ENHANCEMENTS
+# 29. FUTURE ENHANCEMENTS
 # ==================================================
 
-st.header("23. Possible future enhancements")
+st.header("29. Possible future enhancements")
 
 st.markdown(
     """
-Potential future improvements include:
+Potential enhancements include:
 
-- official DSA-Sec talent-area data;
+- persistent cloud document storage;
+- automatic knowledge-base updates;
+- larger RAG corpus;
+- document versioning;
+- metadata-based filtering;
+- relevance-score thresholds;
 - more complete historical COP coverage;
-- multiple-year COP trend visualisation;
-- school comparison tools;
-- persistent user profiles;
-- saved school shortlists;
-- more comprehensive policy retrieval;
-- current-year policy update mechanisms; and
-- richer school programme information.
+- official DSA-Sec talent-area data;
+- persistent student profiles;
+- saved school shortlists; and
+- multi-year COP trend analysis.
 """
 )
 
 
 # ==================================================
-# 24. EDUCATIONAL DISCLAIMER
+# 30. EDUCATIONAL DISCLAIMER
 # ==================================================
 
-st.header("24. Educational disclaimer")
+st.header("30. Educational disclaimer")
 
 st.warning(
     """
@@ -915,11 +1130,13 @@ only**.
 The information provided here is **NOT intended for real-world usage**
 and should not be relied upon for making decisions.
 
-The language model may generate inaccurate or incorrect information.
+The language model may generate inaccurate or incorrect information, and
+RAG retrieval does not guarantee that the most relevant document chunk
+will always be selected.
 
 Always verify current PSLE, S1 Posting, DSA-Sec and school information
 with the Ministry of Education and the relevant school's official
-website.
+information.
 """
 )
 
@@ -931,5 +1148,6 @@ website.
 st.divider()
 
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone · Methodology"
+    "PSLE Navigator · AI Bootcamp Capstone · "
+    "LangChain + FAISS hybrid RAG methodology"
 )
