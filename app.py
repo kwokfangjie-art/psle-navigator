@@ -1,4 +1,5 @@
 import streamlit as st
+
 from utils.auth import require_login, logout
 
 
@@ -13,6 +14,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
+# ==================================================
+# LOGIN
+# ==================================================
+
 require_login()
 
 
@@ -23,11 +29,11 @@ require_login()
 with st.sidebar:
 
     st.write(
-        f"👤 **{st.session_state.get('username')}**"
+        f"👤 **{st.session_state.get('username', 'User')}**"
     )
 
     st.caption(
-        f"Role: {st.session_state.get('role')}"
+        f"Role: {st.session_state.get('role', 'User')}"
     )
 
     if st.button(
@@ -38,10 +44,10 @@ with st.sidebar:
         logout()
 
     st.divider()
-    
+
 
 # ==================================================
-# DEFINE NAVIGATION
+# DEFINE PAGES
 # ==================================================
 
 home_page = st.Page(
@@ -50,11 +56,13 @@ home_page = st.Page(
     icon="🏠"
 )
 
+
 school_explorer_page = st.Page(
     "pages/1_🎓_School_Explorer.py",
     title="School Explorer",
     icon="🎓"
 )
+
 
 ai_navigator_page = st.Page(
     "pages/2_🤖_AI_Navigator.py",
@@ -62,11 +70,20 @@ ai_navigator_page = st.Page(
     icon="🤖"
 )
 
+
+knowledge_base_page = st.Page(
+    "pages/3_🗂️_Knowledge_Base.py",
+    title="Knowledge Base",
+    icon="🗂️"
+)
+
+
 about_page = st.Page(
     "pages/4_ℹ️_About_Us.py",
     title="About Us",
     icon="ℹ️"
 )
+
 
 methodology_page = st.Page(
     "pages/5_🔬_Methodology.py",
@@ -75,14 +92,38 @@ methodology_page = st.Page(
 )
 
 
-navigation = st.navigation(
-    [
-        home_page,
-        school_explorer_page,
-        ai_navigator_page,
-        about_page,
-        methodology_page
-    ]
-)
+# ==================================================
+# ROLE-BASED NAVIGATION
+# ==================================================
+
+if st.session_state.get("role") == "Admin":
+
+    navigation = st.navigation(
+        [
+            home_page,
+            school_explorer_page,
+            ai_navigator_page,
+            knowledge_base_page,
+            about_page,
+            methodology_page
+        ]
+    )
+
+else:
+
+    navigation = st.navigation(
+        [
+            home_page,
+            school_explorer_page,
+            ai_navigator_page,
+            about_page,
+            methodology_page
+        ]
+    )
+
+
+# ==================================================
+# RUN SELECTED PAGE
+# ==================================================
 
 navigation.run()
