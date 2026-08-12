@@ -162,7 +162,7 @@ Important rules:
             try:
 
                 response = client.responses.create(
-                    model="gpt-5",
+                    model="gpt-4.1-mini",
                     instructions=system_prompt,
                     input=conversation
                 )
