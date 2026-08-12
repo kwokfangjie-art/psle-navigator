@@ -46,6 +46,9 @@ The application contains two main user-facing features:
 2. **AI Navigator** — a conversational assistant that combines structured
    school-data retrieval with a FAISS document knowledge base to provide
    grounded explanations and personalised guidance.
+
+The Admin Knowledge Base additionally provides document management and
+AI-assisted document summarisation capabilities.
 """
 )
 
@@ -71,7 +74,8 @@ PSLE Navigator therefore aims to:
 - personalise the experience using non-sensitive student inputs;
 - provide conversational explanations through Generative AI;
 - use RAG to ground policy and process explanations in a custom
-  knowledge base; and
+  knowledge base;
+- provide AI-assisted summaries of reference documents; and
 - help users identify factors they may wish to consider when researching
   secondary schools.
 """
@@ -149,6 +153,7 @@ Features include:
 - Retrieval-Augmented Generation;
 - grounded responses;
 - source-document display;
+- retrieved-passage display;
 - conversation history; and
 - prompt-injection safeguards.
 """
@@ -213,25 +218,72 @@ structured school datasets used elsewhere in the application.
 
 
 # ==================================================
-# ADMIN DOCUMENT UPLOAD
+# DOCUMENT MANAGEMENT
 # ==================================================
 
-st.header("🗂️ Document management")
+st.header("🗂️ Document management & summarisation")
 
 st.write(
     """
-The application includes an Admin-only Knowledge Base page.
+The application includes an Admin-only Knowledge Base page for managing
+the custom RAG document collection.
 
 Administrators can:
 
 - upload PDF and TXT reference documents;
 - view the current document collection;
-- build or rebuild the FAISS vector index; and
+- build or rebuild the FAISS vector index;
+- generate AI-assisted summaries of individual documents; and
 - reset the knowledge base.
 
-Uploaded documents are extracted, split into chunks and converted into
-embeddings before being stored in FAISS for semantic retrieval.
+Uploaded documents are extracted, split into overlapping chunks and
+converted into embeddings before being stored in FAISS for semantic
+retrieval.
 """
+)
+
+
+# ==================================================
+# DOCUMENT SUMMARISER
+# ==================================================
+
+st.subheader("✨ AI Document Summariser")
+
+st.write(
+    """
+The Knowledge Base also includes a Generative AI document summarisation
+feature.
+
+An administrator can select a document and generate one of several
+summary styles:
+
+- **Executive summary** — highlights the purpose, key information,
+  requirements, dates and caveats;
+- **Key points** — produces a concise bullet-point summary; or
+- **Parent-friendly explanation** — explains the document using simpler
+  language.
+
+The summariser uses the extracted text from the selected document as its
+source material and instructs the language model not to introduce facts
+that are absent from the document.
+"""
+)
+
+st.code(
+    """
+Selected document
+        ↓
+PDF / TXT text extraction
+        ↓
+Select summary style
+        ↓
+Grounded summarisation prompt
+        ↓
+Large Language Model
+        ↓
+AI-assisted document summary
+""",
+    language="text"
 )
 
 
@@ -250,6 +302,7 @@ role-based access.
 
 role_1, role_2 = st.columns(2)
 
+
 with role_1:
 
     st.subheader("👨‍💼 Admin")
@@ -261,6 +314,7 @@ Admin users can access:
 - School Explorer;
 - AI Navigator;
 - Knowledge Base document management;
+- AI Document Summariser;
 - About Us; and
 - Methodology.
 """
@@ -280,7 +334,8 @@ Standard users can access:
 - About Us; and
 - Methodology.
 
-Knowledge Base administration is hidden from this role.
+Knowledge Base administration and document summarisation are hidden
+from this role.
 """
     )
 
@@ -296,6 +351,7 @@ st.write(
 PSLE Navigator uses two main categories of information.
 """
 )
+
 
 st.subheader("1. Structured datasets")
 
@@ -350,6 +406,9 @@ The documents are converted into embeddings and stored in FAISS.
 
 When a question is asked, semantic similarity search retrieves relevant
 chunks before the final language-model response is generated.
+
+The same document collection can also be used by the Admin Document
+Summariser.
 """
 )
 
@@ -454,8 +513,8 @@ The matching process considers factors such as:
 5. selected interests relative to school CCA offerings; and
 6. selected programme preferences.
 
-This separation reduces the risk of asking the LLM to perform calculations
-that can be handled more reliably using conventional code.
+This separation reduces the risk of asking the LLM to perform
+calculations that can be handled more reliably using conventional code.
 """
 )
 
@@ -526,7 +585,8 @@ The prototype applies several safeguards:
 - historical COPs must not be presented as admission guarantees;
 - CCA availability must not be treated as proof of DSA-Sec availability;
 - retrieved documents are treated as reference material rather than
-  executable instructions; and
+  executable instructions;
+- document summaries should be based only on the selected document; and
 - requests to reveal system prompts, API keys or hidden configuration
   are rejected.
 """
@@ -546,8 +606,8 @@ The prototype uses:
 - **Streamlit** — web application interface;
 - **Python / pandas** — structured data processing and matching;
 - **Plotly** — interactive visualisation;
-- **OpenAI API** — intent classification, embeddings and response
-  generation;
+- **OpenAI API** — intent classification, embeddings, response generation
+  and document summarisation;
 - **LangChain** — document representation, text splitting and vector-store
   integration;
 - **FAISS** — vector storage and semantic similarity search; and
@@ -580,8 +640,10 @@ The prototype covers:
 - Full Subject-Based Banding and Posting Groups;
 - Integrated Programme;
 - Higher Mother Tongue;
-- personalised school exploration; and
-- RAG-based question answering.
+- personalised school exploration;
+- RAG-based question answering;
+- visible RAG retrieval results; and
+- AI-assisted document summarisation.
 """
 )
 
@@ -605,7 +667,10 @@ Users should be aware of several limitations:
 - The RAG system can retrieve an irrelevant or incomplete text chunk.
 - The language model can still generate inaccurate information despite
   grounding.
-- The document corpus is intentionally small for this prototype.
+- AI-generated summaries may omit details from the original document.
+- Very large documents may be truncated before summarisation in this
+  prototype.
+- The document corpus is intentionally small.
 - Uploaded documents and session information are not intended to provide
   production-grade persistent storage.
 - The application cannot replace official MOE or school guidance.
@@ -633,7 +698,8 @@ telephone numbers.
 API credentials and login credentials are stored using Streamlit Secrets
 rather than being hard-coded into the public source repository.
 
-LLM response calls are configured with `store=False`.
+LLM response and document-summarisation calls are configured with
+`store=False`.
 """
 )
 
@@ -652,9 +718,10 @@ only**.
 The information provided here is **NOT intended for real-world usage**
 and should not be relied upon for making decisions.
 
-The language model may generate inaccurate or incorrect information, and
+The language model may generate inaccurate or incorrect information.
 RAG retrieval does not guarantee that the most relevant source will
-always be selected.
+always be selected, and AI-generated summaries should not replace
+reading the original source document.
 
 Users assume responsibility for how generated output is used.
 
@@ -673,5 +740,5 @@ st.divider()
 
 st.caption(
     "PSLE Navigator · AI Bootcamp Capstone Project · "
-    "Hybrid structured retrieval + FAISS RAG"
+    "Structured retrieval + FAISS RAG + GenAI summarisation"
 )
