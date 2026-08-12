@@ -1453,7 +1453,7 @@ def classify_intent(
 ):
 
     classifier_prompt = """
-You are an intent classifier for PSLE Navigator.
+You are an intent classifier for PathFinder.
 
 Classify the user's question into exactly ONE of:
 
@@ -1610,7 +1610,7 @@ retrieved for this question.
 # ==================================================
 
 BASE_SYSTEM_PROMPT = f"""
-You are PSLE Navigator, an educational prototype
+You are PathFinder, an educational prototype
 for Singapore parents and Primary 6 students.
 
 Use British English.
