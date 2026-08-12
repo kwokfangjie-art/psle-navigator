@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import json
 from openai import OpenAI
-
+from utils.auth import require_password
 
 # ==================================================
 # PAGE CONFIG
@@ -14,6 +14,8 @@ st.set_page_config(
     page_icon="🤖",
     layout="wide"
 )
+
+require_password()
 
 
 # ==================================================
