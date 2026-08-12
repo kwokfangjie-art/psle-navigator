@@ -230,73 +230,51 @@ The AI Navigator uses structured retrieval and RAG to provide grounded explanati
     )
 
 
-st.divider()
-
-
 # ==================================================
-# DATA SOURCES
+# COMPACT FOOTER AREA
 # ==================================================
-
-st.header(
-    "📚 Information used by this prototype"
-)
-
-st.write(
-    """
-PSLE Navigator consolidates selected information from:
-
-- MOE school information;
-- MOE co-curricular activity information;
-- a curated historical PSLE cut-off point dataset; and
-- a small RAG document knowledge base covering PSLE and secondary-school transition topics.
-"""
-)
-
-st.caption(
-    "Historical cut-off points are reference points only "
-    "and do not guarantee future admission outcomes."
-)
-
 
 st.divider()
 
-
-# ==================================================
-# DOCUMENTATION
-# ==================================================
-
-st.header(
-    "📖 Project documentation"
+footer_left, footer_right = st.columns(
+    [2, 1]
 )
 
-doc_col1, doc_col2 = st.columns(2)
+
+with footer_left:
+
+    st.caption(
+        "PSLE Navigator is an educational prototype. "
+        "Historical cut-off points are reference points only "
+        "and do not guarantee future admission outcomes."
+    )
 
 
-with doc_col1:
+with footer_right:
 
-    if st.button(
-        "ℹ️ About PSLE Navigator",
-        use_container_width=True
-    ):
+    about_col, method_col = st.columns(2)
 
-        st.switch_page(
-            "pages/4_ℹ️_About_Us.py"
-        )
+    with about_col:
 
+        if st.button(
+            "ℹ️ About",
+            use_container_width=True
+        ):
 
-with doc_col2:
+            st.switch_page(
+                "pages/4_ℹ️_About_Us.py"
+            )
 
-    if st.button(
-        "🔬 View Methodology",
-        use_container_width=True
-    ):
+    with method_col:
 
-        st.switch_page(
-            "pages/5_🔬_Methodology.py"
-        )
+        if st.button(
+            "🔬 Methodology",
+            use_container_width=True
+        ):
 
-
-st.divider()
+            st.switch_page(
+                "pages/5_🔬_Methodology.py"
+            )
 
 
 # ==================================================
@@ -315,7 +293,7 @@ The information provided here is **not intended for real-world usage**
 and should not be relied upon for making decisions.
 
 The language model may generate inaccurate or incorrect information.
-RAG retrieval also does not guarantee that the most relevant source will
+RAG retrieval does not guarantee that the most relevant source will
 always be selected.
 
 Always verify current PSLE, S1 Posting, DSA-Sec and school information
@@ -328,8 +306,6 @@ with the Ministry of Education and the relevant school's official information.
 # FOOTER
 # ==================================================
 
-st.divider()
-
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone Project · Educational prototype"
+    "PSLE Navigator · AI Bootcamp Capstone Project"
 )
