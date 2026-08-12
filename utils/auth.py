@@ -28,7 +28,7 @@ def require_login():
     # Login screen
     # ----------------------------------------------
 
-    st.title("🔐 PSLE Navigator")
+    st.title("🔐 PathFinder")
 
     st.write(
         "Sign in to access the educational prototype."
