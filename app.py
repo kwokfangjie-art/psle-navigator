@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.auth import require_password
+from utils.auth import require_login, logout
 
 
 # ==================================================
@@ -13,8 +13,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-require_password()
+require_login()
 
+
+# ==================================================
+# SIDEBAR USER INFO
+# ==================================================
+
+with st.sidebar:
+
+    st.write(
+        f"👤 **{st.session_state.get('username')}**"
+    )
+
+    st.caption(
+        f"Role: {st.session_state.get('role')}"
+    )
+
+    if st.button(
+        "Sign out",
+        use_container_width=True
+    ):
+
+        logout()
+
+    st.divider()
+    
 
 # ==================================================
 # DEFINE NAVIGATION
