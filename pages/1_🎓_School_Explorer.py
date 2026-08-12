@@ -1161,8 +1161,16 @@ if (
             "Your search"
         )
 
+
         search_col1, search_col2, search_col3, search_col4 = (
-            st.columns(4)
+            st.columns(
+                [
+                    1.2,
+                    2.2,
+                    1,
+                    0.8
+                ]
+            )
         )
 
 
@@ -1177,7 +1185,7 @@ if (
         with search_col2:
 
             st.metric(
-                "Pathway",
+                "Posting pathway",
                 searched_profile[
                     "pathway"
                 ]
@@ -1187,7 +1195,7 @@ if (
         with search_col3:
 
             st.metric(
-                "Zone",
+                "Preferred zone",
                 searched_profile[
                     "preferred_zone"
                 ]
@@ -1235,7 +1243,8 @@ if (
         )
 
         st.write(
-            "Try another pathway or adjust the student's preferences."
+            "Try another posting pathway or adjust "
+            "the student's preferences."
         )
 
 
@@ -1308,8 +1317,9 @@ if (
         # ==================================================
 
         filtered_matches = matches[
-            matches["match_label"]
-            .isin(
+            matches[
+                "match_label"
+            ].isin(
                 selected_match_types
             )
         ].copy()
@@ -1324,7 +1334,9 @@ if (
 
             filtered_matches = (
                 filtered_matches[
-                    filtered_matches["zone"]
+                    filtered_matches[
+                        "zone"
+                    ]
                     == searched_profile[
                         "preferred_zone"
                     ]
@@ -1362,6 +1374,12 @@ if (
         st.subheader(
             f"{match_count} potential "
             f"{'matches' if match_count != 1 else 'match'}"
+        )
+
+        st.caption(
+            "Results are ranked using the preferred zone, "
+            "selected interests, IP preference where relevant, "
+            "and historical COP position."
         )
 
 
@@ -1441,16 +1459,16 @@ if (
 
 
         # ==================================================
-        # CHART
+        # TOP MATCH COMPARISON
         # ==================================================
 
         st.subheader(
-            "📊 Historical COP comparison"
+            "📊 How your score compares with the top matches"
         )
 
         st.caption(
-            "Lower AL scores are stronger. "
-            "The dashed line represents the student's PSLE score."
+            "The chart shows how many AL points stronger the student's "
+            "score is than each school's historical cut-off point."
         )
 
 
@@ -1458,17 +1476,8 @@ if (
 
             chart_data = (
                 filtered_matches
-                .head(25)
+                .head(10)
                 .copy()
-            )
-
-
-            chart_data[
-                "Historical COP"
-            ] = (
-                chart_data[
-                    "cutoff"
-                ]
             )
 
 
@@ -1482,7 +1491,25 @@ if (
 
 
             chart_data[
-                "Match"
+                "AL points stronger"
+            ] = (
+                chart_data[
+                    "cop_margin"
+                ]
+            )
+
+
+            chart_data[
+                "Historical COP"
+            ] = (
+                chart_data[
+                    "cutoff"
+                ]
+            )
+
+
+            chart_data[
+                "Match category"
             ] = (
                 chart_data[
                     "match_label"
@@ -1490,70 +1517,65 @@ if (
             )
 
 
-            chart_data[
-                "Interest matches"
-            ] = (
-                chart_data[
-                    "interest_match_count"
-                ]
-            )
-
-
-            fig = px.scatter(
+            fig = px.bar(
                 chart_data,
-                x="Historical COP",
+                x="AL points stronger",
                 y="School",
-                symbol="Match",
+                orientation="h",
                 hover_data={
-                    "zone": True,
-                    "gender": True,
-                    "Interest matches": True,
                     "Historical COP": True,
+                    "Match category": True,
+                    "AL points stronger": True,
                     "School": False
                 }
             )
 
 
-            fig.add_vline(
-                x=searched_profile[
-                    "overall_al"
-                ],
-                line_dash="dash",
-                annotation_text=(
-                    f"Student AL "
-                    f"{searched_profile['overall_al']}"
+            fig.update_yaxes(
+                categoryorder="array",
+                categoryarray=(
+                    chart_data[
+                        "School"
+                    ]
+                    .tolist()[::-1]
                 ),
-                annotation_position="top"
+                title=""
+            )
+
+
+            max_margin = int(
+                chart_data[
+                    "AL points stronger"
+                ].max()
             )
 
 
             fig.update_xaxes(
-                range=[
-                    3.5,
-                    32.5
-                ],
                 dtick=1,
+                range=[
+                    0,
+                    max(
+                        4,
+                        max_margin + 1
+                    )
+                ],
                 title=(
-                    "PSLE Achievement Level"
+                    "AL points stronger than historical COP"
                 )
-            )
-
-
-            fig.update_yaxes(
-                title=""
             )
 
 
             fig.update_layout(
                 height=max(
-                    450,
+                    420,
                     len(chart_data)
-                    * 32
+                    * 44
                 ),
+                showlegend=False,
                 margin=dict(
                     l=10,
                     r=10,
-                    t=30,
+                    t=10,
                     b=10
                 )
             )
@@ -1565,13 +1587,21 @@ if (
             )
 
 
+            st.caption(
+                "**How to read this:** "
+                "0 = exactly at the historical COP · "
+                "1–2 = Competitive · "
+                "3+ = Comfortable."
+            )
+
+
             if len(
                 filtered_matches
-            ) > 25:
+            ) > 10:
 
                 st.caption(
-                    "The chart displays the first 25 ranked schools. "
-                    "All matching schools remain listed below."
+                    "The chart shows the first 10 ranked matches. "
+                    "All matching schools are listed below."
                 )
 
 
@@ -1668,34 +1698,20 @@ if (
                 # KEY NUMBERS
                 # ------------------------------------------
 
-                metric_col1, metric_col2, metric_col3 = (
-                    st.columns(3)
+                metric_col1, metric_col2 = (
+                    st.columns(2)
                 )
 
 
                 with metric_col1:
 
                     st.metric(
-                        "Student AL",
-                        searched_profile[
-                            "overall_al"
-                        ]
+                        f"Historical COP ({int(school['year'])})",
+                        f"AL {int(school['cutoff'])}"
                     )
 
 
                 with metric_col2:
-
-                    st.metric(
-                        f"Historical COP ({int(school['year'])})",
-                        int(
-                            school[
-                                "cutoff"
-                            ]
-                        )
-                    )
-
-
-                with metric_col3:
 
                     margin = int(
                         school[
@@ -1703,9 +1719,25 @@ if (
                         ]
                     )
 
+
+                    if margin > 0:
+
+                        comparison_text = (
+                            f"{margin} point"
+                            f"{'s' if margin != 1 else ''} stronger"
+                        )
+
+                    else:
+
+                        comparison_text = (
+                            "At historical COP"
+                        )
+
+
                     st.metric(
-                        "AL difference",
-                        margin
+                        "Your score",
+                        f"AL {searched_profile['overall_al']}",
+                        comparison_text
                     )
 
 
