@@ -7,7 +7,7 @@ import streamlit as st
 
 def require_login():
     """
-    Simple two-user authentication for the educational prototype.
+    Simple two-user authentication for PathFinder.
 
     Credentials are stored in Streamlit Secrets.
 
@@ -22,6 +22,26 @@ def require_login():
 
     if st.session_state.get("authenticated"):
         return
+
+
+    # ----------------------------------------------
+    # Hide navigation while logged out
+    # ----------------------------------------------
+
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+
+            [data-testid="collapsedControl"] {
+                display: none;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 
     # ----------------------------------------------
@@ -149,6 +169,10 @@ def require_login():
                 "Incorrect username or password."
             )
 
+
+    # ----------------------------------------------
+    # Prevent rest of app from loading
+    # ----------------------------------------------
 
     st.stop()
 
