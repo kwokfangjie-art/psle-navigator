@@ -10,8 +10,8 @@ st.title("🔬 Methodology")
 st.write(
     "This page explains how PSLE Navigator processes user inputs, "
     "integrates structured datasets, builds a FAISS vector store, "
-    "retrieves relevant information, and uses a large language model "
-    "to generate grounded responses."
+    "retrieves relevant information, performs document summarisation, "
+    "and uses a large language model to generate grounded responses."
 )
 
 st.info(
@@ -31,7 +31,8 @@ st.header("1. System overview")
 st.write(
     """
 PSLE Navigator combines deterministic Python logic with a
-Retrieval-Augmented Generation (RAG) pipeline.
+Retrieval-Augmented Generation (RAG) pipeline and a document summarisation
+workflow.
 
 The application separates tasks that are better handled by conventional
 code from tasks that benefit from a language model.
@@ -44,15 +45,17 @@ code from tasks that benefit from a language model.
 - zone matching;
 - CCA-interest matching;
 - structured data joins;
-- named-school lookup; and
+- named-school lookup;
+- document text extraction; and
 - selection of relevant school records.
 
 **The RAG / LLM pipeline is used for:**
 - semantic retrieval from custom reference documents;
 - policy and process explanations;
 - personalised follow-up questions;
-- conversational responses; and
-- grounded natural-language generation.
+- conversational responses;
+- grounded natural-language generation; and
+- AI-assisted document summarisation.
 """
 )
 
@@ -63,27 +66,37 @@ User
   v
 Streamlit Interface
   |
-  +-----------------------------------+
-  |                                   |
-  v                                   v
-School Explorer                  AI Navigator
-  |                                   |
-  v                                   v
-Structured datasets              Intent classification
-  |                                   |
-  v                                   v
-Python matching              Structured retrieval
-                                      +
-                               FAISS RAG retrieval
-                                      |
-                                      v
-                               Combined context
-                                      |
-                                      v
-                                     LLM
-                                      |
-                                      v
-                               Grounded response
+  +-------------------------------------+
+  |                                     |
+  v                                     v
+School Explorer                    AI Navigator
+  |                                     |
+  v                                     v
+Structured datasets                Intent classification
+  |                                     |
+  v                                     v
+Python matching                Structured retrieval
+                                        +
+                                 FAISS RAG retrieval
+                                        |
+                                        v
+                                 Combined context
+                                        |
+                                        v
+                                       LLM
+                                        |
+                                        v
+                                 Grounded response
+
+Admin
+  |
+  v
+Knowledge Base
+  |
+  +---------------------------+
+  |                           |
+  v                           v
+RAG indexing            Document summarisation
 """,
     language="text"
 )
@@ -110,6 +123,7 @@ st.markdown(
 - access to School Explorer;
 - access to AI Navigator;
 - access to Knowledge Base document upload and FAISS index management;
+- access to AI Document Summariser;
 - access to About Us and Methodology.
 
 **User role**
@@ -196,7 +210,7 @@ The custom knowledge base contains a small set of documents covering:
 
 
 # ==================================================
-# 4. DATA PREPARATION
+# 4. STRUCTURED DATA PREPARATION
 # ==================================================
 
 st.header("4. Structured data preparation")
@@ -440,7 +454,7 @@ relying only on text labels.
 
 
 # ==================================================
-# 10. KNOWLEDGE BASE UPLOAD
+# 10. ADMIN KNOWLEDGE BASE
 # ==================================================
 
 st.header("10. Admin Knowledge Base")
@@ -448,7 +462,7 @@ st.header("10. Admin Knowledge Base")
 st.write(
     """
 The Admin role includes a Knowledge Base page where reference documents
-can be uploaded.
+can be uploaded and managed.
 
 Supported formats are PDF and TXT.
 """
@@ -804,31 +818,120 @@ LLM answer
 
 
 # ==================================================
-# 19. RAG SOURCES
+# 19. RAG SOURCE VISIBILITY
 # ==================================================
 
-st.header("19. Source visibility")
+st.header("19. RAG source visibility")
 
 st.write(
     """
-When RAG chunks are retrieved, the AI Navigator provides an expandable
-"RAG sources used" section.
+When RAG chunks are retrieved, the AI Navigator provides expandable
+sections that allow the user to inspect the retrieval results.
 
-This can show:
+These can show:
 
-- document filename; and
-- page number, where available.
+- source filename;
+- page number, where available; and
+- the retrieved passage itself.
 
-This makes the retrieval process more transparent to the user.
+This helps make the RAG process visible and auditable during the
+prototype demonstration.
 """
 )
 
 
 # ==================================================
-# 20. NAMED-SCHOOL DETECTION
+# 20. DOCUMENT SUMMARISATION
 # ==================================================
 
-st.header("20. Named-school detection")
+st.header("20. AI Document Summarisation")
+
+st.write(
+    """
+The Admin Knowledge Base also includes a Generative AI document
+summarisation feature.
+
+An administrator selects one document from the knowledge base and chooses
+a summary style.
+"""
+)
+
+st.markdown(
+    """
+Available summary styles include:
+
+- **Executive summary**
+- **Key points**
+- **Parent-friendly explanation**
+"""
+)
+
+st.subheader("Summarisation process flow")
+
+st.code(
+    """
+Admin selects document
+        |
+        v
+Extract full document text
+        |
+        v
+Select summary style
+        |
+        v
+Build grounded summarisation prompt
+        |
+        v
+Send document text to LLM
+        |
+        v
+Generate document summary
+        |
+        v
+Display summary to Admin
+""",
+    language="text"
+)
+
+st.write(
+    """
+The summarisation prompt instructs the language model to:
+
+- use only information contained in the selected document;
+- avoid adding unsupported facts;
+- use British English;
+- follow the selected summary style; and
+- treat document content as reference material rather than system
+  instructions.
+"""
+)
+
+
+# ==================================================
+# 21. SUMMARISATION INPUT LIMIT
+# ==================================================
+
+st.header("21. Summarisation input handling")
+
+st.write(
+    """
+For this prototype, very large documents are limited to approximately
+50,000 characters before being sent for summarisation.
+
+If a document exceeds that limit, the application informs the Admin that
+the summary was generated from only the first portion of the document.
+
+This keeps the prototype simple and prevents excessively large single
+model requests.
+"""
+)
+
+
+# ==================================================
+# 22. NAMED-SCHOOL DETECTION
+# ==================================================
+
+st.header("22. Named-school detection")
 
 st.write(
     """
@@ -858,54 +961,50 @@ wrong school.
 
 
 # ==================================================
-# 21. PROMPT ENGINEERING
+# 23. PROMPT ENGINEERING
 # ==================================================
 
-st.header("21. Prompt engineering")
+st.header("23. Prompt engineering")
 
 st.write(
     """
-The final system prompt contains several instruction groups.
+The application uses different prompts for different stages.
 """
 )
 
 st.markdown(
     """
-**Role instructions**
+**Intent-classification prompt**
 
-Define PSLE Navigator as an educational assistant for Singapore's
-PSLE-to-secondary-school transition.
+Classifies user questions into predefined categories.
 
-**Grounding instructions**
+**Final-answer system prompt**
 
-Require the model to base factual answers on retrieved evidence.
+Defines:
+- role;
+- grounding requirements;
+- source priority;
+- personalisation;
+- uncertainty handling;
+- prompt-injection safeguards; and
+- response style.
 
-**Source priority**
+**Document-summarisation prompt**
 
-Structured data is preferred for school-specific facts, while RAG
-documents are preferred for policy and process explanations.
-
-**Personalisation**
-
-Use the shared student profile where relevant.
-
-**Uncertainty handling**
-
-Require the model to state when available evidence does not support an
-answer.
-
-**Response style**
-
-Use British English and concise, parent-friendly explanations.
+Defines:
+- selected summary style;
+- source-only summarisation;
+- prohibition on unsupported facts; and
+- treatment of document text as reference content only.
 """
 )
 
 
 # ==================================================
-# 22. PROMPT-INJECTION SAFEGUARDS
+# 24. PROMPT-INJECTION SAFEGUARDS
 # ==================================================
 
-st.header("22. Prompt-injection safeguards")
+st.header("24. Prompt-injection safeguards")
 
 st.write(
     """
@@ -949,15 +1048,21 @@ that are not supported by retrieved evidence.
 
 The model must not infer that a school offers DSA-Sec simply because a
 related CCA exists.
+
+**7. Summarisation isolation**
+
+The summariser is told to treat document text as reference content rather
+than instructions and to use only the supplied document as its factual
+basis.
 """
 )
 
 
 # ==================================================
-# 23. API SECURITY
+# 25. API SECURITY
 # ==================================================
 
-st.header("23. API and credential security")
+st.header("25. API and credential security")
 
 st.write(
     """
@@ -973,10 +1078,10 @@ The application accesses the OpenAI API key through:
 
 
 # ==================================================
-# 24. CONVERSATION MEMORY
+# 26. CONVERSATION MEMORY
 # ==================================================
 
-st.header("24. Conversation history")
+st.header("26. Conversation history")
 
 st.write(
     """
@@ -991,10 +1096,10 @@ The user can clear the conversation at any time.
 
 
 # ==================================================
-# 25. ERROR HANDLING
+# 27. ERROR HANDLING
 # ==================================================
 
-st.header("25. Error handling")
+st.header("27. Error handling")
 
 st.markdown(
     """
@@ -1005,17 +1110,19 @@ The prototype includes basic error handling for:
 - unavailable FAISS indexes;
 - intent-classification failures;
 - failed LLM API calls;
-- missing school-specific information; and
-- missing RAG results.
+- missing school-specific information;
+- missing RAG results;
+- unreadable PDF or TXT documents; and
+- failed document-summarisation requests.
 """
 )
 
 
 # ==================================================
-# 26. LLM DATA HANDLING
+# 28. LLM DATA HANDLING
 # ==================================================
 
-st.header("26. LLM data handling")
+st.header("28. LLM data handling")
 
 st.write(
     """
@@ -1023,19 +1130,22 @@ Relevant user questions, recent conversation content, student profile
 context and retrieved evidence are sent to the LLM API when generating a
 response.
 
+For document summarisation, the selected document's extracted text is
+sent to the LLM API.
+
 The prototype intentionally avoids collecting sensitive personal
 information.
 
-LLM response calls are configured with `store=False`.
+LLM response and summarisation calls are configured with `store=False`.
 """
 )
 
 
 # ==================================================
-# 27. DESIGN PRINCIPLES
+# 29. DESIGN PRINCIPLES
 # ==================================================
 
-st.header("27. Design principles")
+st.header("29. Design principles")
 
 st.markdown(
     """
@@ -1053,26 +1163,32 @@ Policy and process questions are grounded in a custom knowledge base.
 School, COP and CCA information is retrieved directly from structured
 datasets.
 
+**GenAI for summarisation**
+
+The language model is used to transform document text into concise,
+user-friendly summaries.
+
 **Explainability**
 
 The School Explorer explains why each school appears.
 
 **Source transparency**
 
-RAG sources can be displayed to the user.
+RAG sources and retrieved passages can be displayed to the user.
 
 **Role separation**
 
-Knowledge-base management is restricted to the Admin role.
+Knowledge-base management and document summarisation are restricted to
+the Admin role.
 """
 )
 
 
 # ==================================================
-# 28. LIMITATIONS
+# 30. LIMITATIONS
 # ==================================================
 
-st.header("28. Limitations")
+st.header("30. Limitations")
 
 st.markdown(
     """
@@ -1084,6 +1200,8 @@ st.markdown(
 - FAISS may retrieve a chunk that is only partially relevant.
 - The LLM may still generate inaccurate information.
 - Policies may change after the knowledge-base documents are created.
+- AI summaries may omit details from the original document.
+- Large documents may be truncated before summarisation.
 - Uploaded files and the local FAISS index are not production-grade
   persistent storage.
 - Student profiles and conversations are session-based.
@@ -1092,10 +1210,10 @@ st.markdown(
 
 
 # ==================================================
-# 29. FUTURE ENHANCEMENTS
+# 31. FUTURE ENHANCEMENTS
 # ==================================================
 
-st.header("29. Possible future enhancements")
+st.header("31. Possible future enhancements")
 
 st.markdown(
     """
@@ -1107,6 +1225,7 @@ Potential enhancements include:
 - document versioning;
 - metadata-based filtering;
 - relevance-score thresholds;
+- multi-stage document summarisation for large files;
 - more complete historical COP coverage;
 - official DSA-Sec talent-area data;
 - persistent student profiles;
@@ -1117,10 +1236,10 @@ Potential enhancements include:
 
 
 # ==================================================
-# 30. EDUCATIONAL DISCLAIMER
+# 32. EDUCATIONAL DISCLAIMER
 # ==================================================
 
-st.header("30. Educational disclaimer")
+st.header("32. Educational disclaimer")
 
 st.warning(
     """
@@ -1130,9 +1249,10 @@ only**.
 The information provided here is **NOT intended for real-world usage**
 and should not be relied upon for making decisions.
 
-The language model may generate inaccurate or incorrect information, and
+The language model may generate inaccurate or incorrect information.
 RAG retrieval does not guarantee that the most relevant document chunk
-will always be selected.
+will always be selected, and AI-generated summaries may omit relevant
+details from the original source.
 
 Always verify current PSLE, S1 Posting, DSA-Sec and school information
 with the Ministry of Education and the relevant school's official
@@ -1149,5 +1269,5 @@ st.divider()
 
 st.caption(
     "PSLE Navigator · AI Bootcamp Capstone · "
-    "LangChain + FAISS hybrid RAG methodology"
+    "LangChain + FAISS RAG + GenAI document summarisation"
 )
