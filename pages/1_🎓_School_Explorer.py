@@ -3,10 +3,14 @@ import pandas as pd
 import re
 
 
+# ==================================================
+# NORMALISE SCHOOL NAMES FOR DATASET MATCHING
+# ==================================================
+
 def normalise_school_name(name):
     """
     Creates a standardised school name used only for matching datasets.
-    The original school name is still used for display.
+    The original MOE school name is preserved for display.
     """
 
     if pd.isna(name):
@@ -14,7 +18,7 @@ def normalise_school_name(name):
 
     name = str(name).strip().lower()
 
-    # Remove common suffixes that may appear in one dataset but not another
+    # Remove "(Secondary)" when it appears at the end
     name = re.sub(r"\s*\(secondary\)\s*$", "", name)
 
     # Standardise apostrophes
@@ -23,10 +27,11 @@ def normalise_school_name(name):
     # Remove punctuation
     name = re.sub(r"[^a-z0-9\s]", " ", name)
 
-    # Collapse multiple spaces
+    # Collapse repeated spaces
     name = re.sub(r"\s+", " ", name).strip()
 
     return name
+
 
 # ==================================================
 # PAGE CONFIG
@@ -46,7 +51,9 @@ st.set_page_config(
 @st.cache_data
 def load_school_data():
 
-    df = pd.read_csv("data/General information of schools.csv")
+    df = pd.read_csv(
+        "data/General information of schools.csv"
+    )
 
     secondary_levels = [
         "SECONDARY (S1-S5)",
@@ -57,8 +64,14 @@ def load_school_data():
     ]
 
     df = df[
-        df["mainlevel_code"].isin(secondary_levels)
+        df["mainlevel_code"].isin(
+            secondary_levels
+        )
     ].copy()
+
+    # ----------------------------------------------
+    # Gender
+    # ----------------------------------------------
 
     gender_map = {
         "CO-ED SCHOOL": "Co-ed",
@@ -66,8 +79,23 @@ def load_school_data():
         "GIRLS' SCHOOL": "Girls"
     }
 
-    df["gender"] = df["nature_code"].map(gender_map)
-    df["zone"] = df["zone_code"].str.title()
+    df["gender"] = df["nature_code"].map(
+        gender_map
+    )
+
+    # ----------------------------------------------
+    # Zone
+    # ----------------------------------------------
+
+    df["zone"] = (
+        df["zone_code"]
+        .astype(str)
+        .str.title()
+    )
+
+    # ----------------------------------------------
+    # Rename fields
+    # ----------------------------------------------
 
     df = df.rename(
         columns={
@@ -77,38 +105,51 @@ def load_school_data():
         }
     )
 
-    df["school_key"] = df["school_name"].apply(
-    normalise_school_name
-)
+    # ----------------------------------------------
+    # Matching key
+    # ----------------------------------------------
+
+    df["school_key"] = (
+        df["school_name"]
+        .apply(normalise_school_name)
+    )
 
     keep_columns = [
-    "school_name",
-    "school_key",
-    "gender",
-    "zone",
-    "type_code",
-    "mainlevel_code",
-    "sap",
-    "ip",
-    "website"
-]
+        "school_name",
+        "school_key",
+        "gender",
+        "zone",
+        "type_code",
+        "mainlevel_code",
+        "sap",
+        "ip",
+        "website"
+    ]
 
     return df[keep_columns].copy()
 
 
+# ==================================================
+# LOAD HISTORICAL PSLE COP DATA
+# ==================================================
+
 @st.cache_data
-def load_psle_ranges():
+def load_psle_data():
 
-    df = pd.read_csv("data/psle_ranges.csv")
+    df = pd.read_csv(
+        "data/psle_ranges.csv"
+    )
 
-    df["school_key"] = df["school_name"].apply(
-        normalise_school_name
+    df["school_key"] = (
+        df["school_name"]
+        .apply(normalise_school_name)
     )
 
     return df
 
+
 schools = load_school_data()
-psle_ranges = load_psle_ranges()
+psle_data = load_psle_data()
 
 
 # ==================================================
@@ -118,14 +159,13 @@ psle_ranges = load_psle_ranges()
 st.title("🎓 School Explorer")
 
 st.write(
-    "Tell us about the student to explore secondary school options "
-    "that may match their profile."
+    "Explore secondary schools that may match the student's "
+    "PSLE profile and preferences."
 )
 
 st.info(
-    "💡 This prototype uses official MOE school information and "
-    "historical PSLE score ranges for educational purposes only. "
-    "Results do not predict or guarantee admission."
+    "💡 Historical cut-off points are provided for reference only. "
+    "Actual admission outcomes vary from year to year and are not guaranteed."
 )
 
 st.divider()
@@ -174,6 +214,7 @@ subjects = [
 
 scores = {}
 
+
 for subject in subjects:
 
     scores[subject] = st.segmented_control(
@@ -192,11 +233,13 @@ all_scores_selected = all(
 
 if all_scores_selected:
 
-    overall_al = sum(scores.values())
+    overall_al = sum(
+        scores.values()
+    )
 
     st.metric(
-        label="Overall PSLE Score",
-        value=f"AL {overall_al}"
+        "Overall PSLE Score",
+        f"AL {overall_al}"
     )
 
     st.caption(
@@ -237,21 +280,38 @@ st.divider()
 # POSTING PATHWAY
 # ==================================================
 
-st.subheader("📘 Posting pathway")
+st.subheader("📘 Admission pathway")
+
+# Automatically use whatever pathways exist in the CSV
+available_pathways = (
+    psle_data["pathway"]
+    .dropna()
+    .drop_duplicates()
+    .tolist()
+)
+
+preferred_order = [
+    "Posting Group 3",
+    "Posting Group 2",
+    "Posting Group 1",
+    "Integrated Programme"
+]
+
+available_pathways = [
+    pathway
+    for pathway in preferred_order
+    if pathway in available_pathways
+]
+
 
 posting_pathway = st.selectbox(
     "Which pathway would you like to explore?",
-    options=[
-        "Posting Group 3",
-        "Posting Group 2",
-        "Posting Group 1",
-        "Integrated Programme"
-    ]
+    options=available_pathways
 )
 
 st.caption(
-    "PSLE score ranges differ by Posting Group and for "
-    "Integrated Programme schools."
+    "Only pathways currently available in the historical "
+    "cut-off dataset are shown."
 )
 
 st.divider()
@@ -276,7 +336,8 @@ preferred_zone = st.segmented_control(
 )
 
 st.caption(
-    "Select 'Any' to see potential matches regardless of location."
+    "Schools in the preferred zone will be ranked first. "
+    "Schools outside the zone may still be shown."
 )
 
 
@@ -292,10 +353,8 @@ ip_priority = st.radio(
 )
 
 st.caption(
-    "The Integrated Programme is a 6-year pathway that generally "
-    "allows students to progress towards qualifications such as "
-    "the A-Levels or IB Diploma without taking the national "
-    "Secondary 4 examination route."
+    "IP schools offer a 6-year programme leading towards "
+    "qualifications such as the A-Levels or IB Diploma."
 )
 
 st.divider()
@@ -319,8 +378,8 @@ dsa_interest = st.radio(
 )
 
 st.caption(
-    "DSA-Sec allows students to apply to secondary schools based on "
-    "talents and achievements before the S1 Posting exercise."
+    "DSA-Sec allows students to apply based on talents "
+    "and achievements before the S1 Posting exercise."
 )
 
 
@@ -377,14 +436,19 @@ st.divider()
 
 
 # ==================================================
-# SUBMIT
+# PROFILE VALIDATION
 # ==================================================
 
 profile_complete = (
     gender is not None
     and all_scores_selected
+    and posting_pathway is not None
 )
 
+
+# ==================================================
+# SUBMIT
+# ==================================================
 
 if st.button(
     "Find potential school matches →",
@@ -393,39 +457,41 @@ if st.button(
     disabled=not profile_complete
 ):
 
-    # ----------------------------------------------
+    # ==================================================
     # PROFILE SUMMARY
-    # ----------------------------------------------
+    # ==================================================
 
-    st.success("Student profile created successfully!")
+    st.success(
+        "Student profile created successfully!"
+    )
 
-    st.subheader("Profile summary")
+    st.subheader(
+        "Profile summary"
+    )
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
+
         st.metric(
             "Overall PSLE Score",
             f"AL {overall_al}"
         )
 
     with col2:
+
         st.metric(
-            "Posting Pathway",
+            "Pathway",
             posting_pathway
         )
 
     with col3:
+
         st.metric(
             "Preferred Zone",
             preferred_zone
         )
 
-    with col4:
-        st.metric(
-            "IP Priority",
-            ip_priority
-        )
 
     st.write(
         "**Gender:**",
@@ -452,36 +518,30 @@ if st.button(
 
 
     # ==================================================
-    # SCHOOL MATCHING
+    # FILTER HISTORICAL COP DATA
     # ==================================================
 
-    matches = schools.copy()
-
-
-    # ----------------------------------------------
-    # Select PSLE ranges for chosen pathway
-    # ----------------------------------------------
-
-    selected_ranges = psle_ranges[
-        psle_ranges["pathway"] == posting_pathway
+    selected_cop = psle_data[
+        psle_data["pathway"]
+        == posting_pathway
     ].copy()
 
 
-    # ----------------------------------------------
-    # Merge school directory with PSLE ranges
-    # ----------------------------------------------
+    # ==================================================
+    # MERGE WITH OFFICIAL MOE DIRECTORY
+    # ==================================================
 
-    matches = matches.merge(
-        selected_ranges,
+    matches = schools.merge(
+        selected_cop,
         on="school_key",
         how="inner",
-        suffixes=("", "_psle")
+        suffixes=("", "_cop")
     )
 
 
-    # ----------------------------------------------
-    # Match gender
-    # ----------------------------------------------
+    # ==================================================
+    # GENDER FILTER
+    # ==================================================
 
     if gender == "Male":
 
@@ -492,7 +552,7 @@ if st.button(
                     "Co-ed"
                 ]
             )
-        ]
+        ].copy()
 
     elif gender == "Female":
 
@@ -503,54 +563,67 @@ if st.button(
                     "Co-ed"
                 ]
             )
-        ]
+        ].copy()
 
 
-    # ----------------------------------------------
-    # Match PSLE score
-    # ----------------------------------------------
+    # ==================================================
+    # HISTORICAL COP FILTER
+    # ==================================================
+
+    # Lower AL is stronger.
+    # Only show schools where the student's score
+    # is equal to or stronger than the historical COP.
 
     matches = matches[
-        overall_al <= matches["score_high"]
+        overall_al <= matches["cutoff"]
     ].copy()
 
 
-    # ----------------------------------------------
-    # Create match labels
-    # ----------------------------------------------
-
-    def classify_match(row):
-
-        midpoint = (
-            row["score_low"]
-            + row["score_high"]
-        ) / 2
-
-        if overall_al <= row["score_low"]:
-            return "Strong historical match"
-
-        elif overall_al <= midpoint:
-            return "Within indicative range"
-
-        else:
-            return "Near upper end"
-
+    # ==================================================
+    # CALCULATE COP MARGIN
+    # ==================================================
 
     if not matches.empty:
-        matches["match_label"] = matches.apply(
-            classify_match,
-            axis=1
+
+        matches["cop_margin"] = (
+            matches["cutoff"]
+            - overall_al
         )
 
 
-    # ----------------------------------------------
-    # Preferred-zone ranking
-    # ----------------------------------------------
+    # ==================================================
+    # MATCH CLASSIFICATION
+    # ==================================================
+
+    def classify_match(margin):
+
+        if margin >= 3:
+            return "Comfortable"
+
+        elif margin >= 1:
+            return "Competitive"
+
+        else:
+            return "Borderline"
+
+
+    if not matches.empty:
+
+        matches["match_label"] = (
+            matches["cop_margin"]
+            .apply(classify_match)
+        )
+
+
+    # ==================================================
+    # ZONE MATCH
+    # ==================================================
 
     if preferred_zone != "Any":
 
         matches["zone_match"] = (
-            matches["zone"] == preferred_zone
+            matches["zone"]
+            == preferred_zone
         )
 
     else:
@@ -558,50 +631,58 @@ if st.button(
         matches["zone_match"] = True
 
 
-    # ----------------------------------------------
-    # IP preference ranking
-    # ----------------------------------------------
+    # ==================================================
+    # IP MATCH
+    # ==================================================
 
     matches["ip_match"] = (
         matches["ip"] == "Yes"
     )
 
 
-    # ----------------------------------------------
-    # Sort results
-    # ----------------------------------------------
+    # ==================================================
+    # SORT RESULTS
+    # ==================================================
+
+    sort_columns = [
+        "zone_match"
+    ]
+
+    sort_ascending = [
+        False
+    ]
+
 
     if ip_priority == "Yes":
 
-        matches = matches.sort_values(
-            by=[
-                "zone_match",
-                "ip_match",
-                "score_high",
-                "school_name"
-            ],
-            ascending=[
-                False,
-                False,
-                True,
-                True
-            ]
+        sort_columns.append(
+            "ip_match"
         )
 
-    else:
-
-        matches = matches.sort_values(
-            by=[
-                "zone_match",
-                "score_high",
-                "school_name"
-            ],
-            ascending=[
-                False,
-                True,
-                True
-            ]
+        sort_ascending.append(
+            False
         )
+
+
+    sort_columns.extend(
+        [
+            "cutoff",
+            "school_name"
+        ]
+    )
+
+    sort_ascending.extend(
+        [
+            True,
+            True
+        ]
+    )
+
+
+    matches = matches.sort_values(
+        by=sort_columns,
+        ascending=sort_ascending
+    )
 
 
     # ==================================================
@@ -610,22 +691,28 @@ if st.button(
 
     st.divider()
 
-    st.subheader("🎓 Potential school matches")
+    st.subheader(
+        "🎓 Potential school matches"
+    )
 
     st.caption(
-        "PSLE score ranges are based on the previous S1 Posting exercise "
-        "and are indicative only. They do not guarantee admission."
+        "Matches are based on historical cut-off points and "
+        "basic profile criteria. They do not predict admission."
     )
 
 
     if matches.empty:
 
         st.warning(
-            "No potential matches were found for the selected "
-            "profile and pathway in the current dataset."
+            "No potential matches were found in the current "
+            "historical cut-off dataset."
         )
 
     else:
+
+        # ----------------------------------------------
+        # SUMMARY
+        # ----------------------------------------------
 
         st.write(
             f"**{len(matches)} potential match"
@@ -637,26 +724,79 @@ if st.button(
 
             zone_count = len(
                 matches[
-                    matches["zone"] == preferred_zone
+                    matches["zone"]
+                    == preferred_zone
                 ]
             )
 
             st.write(
-                f"📍 **{zone_count}** of these schools are in "
-                f"the **{preferred_zone}** zone."
+                f"📍 **{zone_count}** match"
+                f"{'es' if zone_count != 1 else ''} "
+                f"in the **{preferred_zone}** zone."
+            )
+
+
+        comfortable_count = len(
+            matches[
+                matches["match_label"]
+                == "Comfortable"
+            ]
+        )
+
+        competitive_count = len(
+            matches[
+                matches["match_label"]
+                == "Competitive"
+            ]
+        )
+
+        borderline_count = len(
+            matches[
+                matches["match_label"]
+                == "Borderline"
+            ]
+        )
+
+
+        summary1, summary2, summary3 = st.columns(3)
+
+
+        with summary1:
+
+            st.metric(
+                "Comfortable",
+                comfortable_count
+            )
+
+
+        with summary2:
+
+            st.metric(
+                "Competitive",
+                competitive_count
+            )
+
+
+        with summary3:
+
+            st.metric(
+                "Borderline",
+                borderline_count
             )
 
 
         st.write("")
 
 
-        # ------------------------------------------
-        # School cards
-        # ------------------------------------------
+        # ==================================================
+        # SCHOOL CARDS
+        # ==================================================
 
         for _, school in matches.iterrows():
 
-            with st.container(border=True):
+            with st.container(
+                border=True
+            ):
 
                 col1, col2 = st.columns(
                     [
@@ -664,6 +804,11 @@ if st.button(
                         1
                     ]
                 )
+
+
+                # ------------------------------------------
+                # SCHOOL NAME / DETAILS
+                # ------------------------------------------
 
                 with col1:
 
@@ -674,78 +819,113 @@ if st.button(
                     st.write(
                         f"**{school['gender']}** · "
                         f"{school['zone']} · "
-                        f"{school['type_code'].title()}"
+                        f"{str(school['type_code']).title()}"
                     )
 
 
+                # ------------------------------------------
+                # MATCH LABEL
+                # ------------------------------------------
+
                 with col2:
 
-                    if school["match_label"] == "Strong historical match":
+                    if school["match_label"] == "Comfortable":
 
                         st.success(
-                            "Strong match"
+                            "Comfortable"
                         )
 
-                    elif school["match_label"] == "Within indicative range":
+                    elif school["match_label"] == "Competitive":
 
                         st.info(
-                            "Within range"
+                            "Competitive"
                         )
 
                     else:
 
                         st.warning(
-                            "Near upper end"
+                            "Borderline"
                         )
 
 
-                # ----------------------------------
-                # PSLE RANGE
-                # ----------------------------------
+                # ------------------------------------------
+                # HISTORICAL COP
+                # ------------------------------------------
 
                 st.write(
-                    f"**2025 PSLE range:** "
-                    f"{int(school['score_low'])}–"
-                    f"{int(school['score_high'])}"
+                    f"**Historical COP ({int(school['year'])}):** "
+                    f"AL {int(school['cutoff'])}"
                 )
 
                 st.write(
-                    f"**Pathway:** "
-                    f"{school['pathway']}"
+                    f"**Student score:** AL {overall_al}"
                 )
 
 
-                # ----------------------------------
+                margin = int(
+                    school["cop_margin"]
+                )
+
+
+                if margin > 0:
+
+                    st.write(
+                        f"**Difference:** Student's score is "
+                        f"{margin} AL point"
+                        f"{'s' if margin != 1 else ''} "
+                        f"stronger than the historical COP."
+                    )
+
+                else:
+
+                    st.write(
+                        "**Difference:** Student's score is exactly "
+                        "at the historical COP."
+                    )
+
+
+                # ------------------------------------------
                 # PROGRAMMES
-                # ----------------------------------
+                # ------------------------------------------
 
                 programme_badges = []
 
+
                 if school["ip"] == "Yes":
-                    programme_badges.append("🎓 IP")
+
+                    programme_badges.append(
+                        "🎓 IP"
+                    )
+
 
                 if school["sap"] == "Yes":
-                    programme_badges.append("🏮 SAP")
+
+                    programme_badges.append(
+                        "🏮 SAP"
+                    )
+
 
                 if programme_badges:
 
                     st.write(
                         "**Programmes:** "
-                        + " · ".join(programme_badges)
+                        + " · ".join(
+                            programme_badges
+                        )
                     )
 
 
-                # ----------------------------------
+                # ------------------------------------------
                 # WHY THIS SCHOOL APPEARS
-                # ----------------------------------
+                # ------------------------------------------
 
                 st.write(
                     "**Why this school appears:**"
                 )
 
                 st.write(
-                    "✓ Student's PSLE score is within or stronger "
-                    "than the school's historical indicative range."
+                    "✓ Student's score is equal to or stronger "
+                    "than the historical COP."
                 )
 
                 st.write(
@@ -755,7 +935,10 @@ if st.button(
 
                 if preferred_zone != "Any":
 
-                    if school["zone"] == preferred_zone:
+                    if (
+                        school["zone"]
+                        == preferred_zone
+                    ):
 
                         st.write(
                             "✓ Matches preferred school zone."
@@ -776,44 +959,63 @@ if st.button(
 
                     st.write(
                         "✓ Offers the Integrated Programme, "
-                        "which matches the student's stated preference."
+                        "which matches the stated preference."
                     )
 
 
+                # ------------------------------------------
+                # DISCLAIMER
+                # ------------------------------------------
+
                 st.caption(
-                    "Historical PSLE score ranges are for reference only "
-                    "and do not predict admission outcomes."
+                    "Historical COPs are reference points only. "
+                    "Actual posting outcomes may vary each year."
                 )
 
 
-                # ----------------------------------
-                # SOURCE / WEBSITE
-                # ----------------------------------
+                # ------------------------------------------
+                # SOURCE
+                # ------------------------------------------
 
                 if pd.notna(
-                    school.get("source_url")
+                    school.get(
+                        "source_url"
+                    )
                 ):
 
                     source_url = str(
-                        school["source_url"]
+                        school[
+                            "source_url"
+                        ]
                     ).strip()
+
 
                     if source_url:
 
                         st.link_button(
-                            "View MOE source ↗",
+                            "View COP data source ↗",
                             source_url
                         )
 
 
+                # ------------------------------------------
+                # SCHOOL WEBSITE
+                # ------------------------------------------
+
                 if (
-                    pd.notna(school["website"])
-                    and str(school["website"]).strip() != ""
+                    pd.notna(
+                        school["website"]
+                    )
+                    and
+                    str(
+                        school["website"]
+                    ).strip() != ""
                 ):
 
                     website = str(
                         school["website"]
                     ).strip()
+
 
                     if not website.startswith(
                         (
@@ -826,6 +1028,7 @@ if st.button(
                             "https://"
                             + website
                         )
+
 
                     st.link_button(
                         "Visit school website ↗",
