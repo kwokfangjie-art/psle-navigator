@@ -472,11 +472,11 @@ if st.button(
     # ----------------------------------------------
 
     matches = matches.merge(
-    selected_ranges,
-    on="school_key",
-    how="inner",
-    suffixes=("", "_psle")
-)
+        selected_ranges,
+        on="school_key",
+        how="inner",
+        suffixes=("", "_psle")
+    )
 
 
     # ----------------------------------------------
