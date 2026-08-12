@@ -5,10 +5,10 @@ import streamlit as st
 # PAGE HEADER
 # ==================================================
 
-st.title("ℹ️ About PSLE Navigator")
+st.title("ℹ️ About PathFinder")
 
 st.write(
-    "PSLE Navigator is an educational GenAI prototype designed to help "
+    "PathFinder is an educational GenAI prototype designed to help "
     "Singapore parents and Primary 6 students better understand the "
     "transition from PSLE to secondary school."
 )
@@ -34,7 +34,7 @@ Choosing a secondary school can involve many different pieces of
 information — PSLE Achievement Levels, Posting Groups, historical
 cut-off points, school programmes, CCAs, DSA-Sec and other pathways.
 
-PSLE Navigator brings selected information together into one interactive
+PathFinder brings selected information together into one interactive
 application and combines conventional data processing with Generative AI
 and Retrieval-Augmented Generation (RAG).
 
@@ -67,7 +67,7 @@ school information sources when considering secondary school options.
 It can also be difficult to understand how general policies and school
 information relate to an individual student's circumstances.
 
-PSLE Navigator therefore aims to:
+PathFinder therefore aims to:
 
 - consolidate selected school and admission information;
 - make the information easier to explore;
@@ -168,7 +168,7 @@ st.header("🧠 RAG knowledge base")
 
 st.write(
     """
-PSLE Navigator includes a custom document knowledge base for
+PathFinder includes a custom document knowledge base for
 Retrieval-Augmented Generation (RAG).
 
 Reference documents are processed using the following pipeline:
@@ -348,7 +348,7 @@ st.header("📚 Data sources")
 
 st.write(
     """
-PSLE Navigator uses two main categories of information.
+PathFinder uses two main categories of information.
 """
 )
 
@@ -624,7 +624,7 @@ st.header("📌 Project scope")
 
 st.write(
     """
-PSLE Navigator focuses on selected aspects of the Singapore
+PathFinder focuses on selected aspects of the Singapore
 PSLE-to-secondary-school transition.
 
 The prototype covers:
@@ -739,6 +739,6 @@ information.
 st.divider()
 
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone Project · "
+    "PathFinder · AI Bootcamp Capstone Project · "
     "Structured retrieval + FAISS RAG + GenAI summarisation"
 )
