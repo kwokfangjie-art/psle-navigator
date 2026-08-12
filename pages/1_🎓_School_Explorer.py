@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import re
 
 
@@ -18,7 +19,7 @@ def normalise_school_name(name):
 
     name = str(name).strip().lower()
 
-    # Remove "(Secondary)" when it appears at the end
+    # Remove "(Secondary)" if it appears at the end
     name = re.sub(r"\s*\(secondary\)\s*$", "", name)
 
     # Standardise apostrophes
@@ -64,9 +65,7 @@ def load_school_data():
     ]
 
     df = df[
-        df["mainlevel_code"].isin(
-            secondary_levels
-        )
+        df["mainlevel_code"].isin(secondary_levels)
     ].copy()
 
     # ----------------------------------------------
@@ -214,7 +213,6 @@ subjects = [
 
 scores = {}
 
-
 for subject in subjects:
 
     scores[subject] = st.segmented_control(
@@ -277,12 +275,11 @@ st.divider()
 
 
 # ==================================================
-# POSTING PATHWAY
+# ADMISSION PATHWAY
 # ==================================================
 
 st.subheader("📘 Admission pathway")
 
-# Automatically use whatever pathways exist in the CSV
 available_pathways = (
     psle_data["pathway"]
     .dropna()
@@ -472,26 +469,22 @@ if st.button(
     col1, col2, col3 = st.columns(3)
 
     with col1:
-
         st.metric(
             "Overall PSLE Score",
             f"AL {overall_al}"
         )
 
     with col2:
-
         st.metric(
             "Pathway",
             posting_pathway
         )
 
     with col3:
-
         st.metric(
             "Preferred Zone",
             preferred_zone
         )
-
 
     st.write(
         "**Gender:**",
@@ -504,21 +497,18 @@ if st.button(
     )
 
     if interests:
-
         st.write(
             "**Interests:**",
             ", ".join(interests)
         )
-
     else:
-
         st.write(
             "**Interests:** Not specified"
         )
 
 
     # ==================================================
-    # FILTER HISTORICAL COP DATA
+    # FILTER COP DATA BY PATHWAY
     # ==================================================
 
     selected_cop = psle_data[
@@ -570,9 +560,9 @@ if st.button(
     # HISTORICAL COP FILTER
     # ==================================================
 
-    # Lower AL is stronger.
-    # Only show schools where the student's score
-    # is equal to or stronger than the historical COP.
+    # Lower AL scores are stronger.
+    # Only show schools where the student's score is
+    # equal to or stronger than the historical COP.
 
     matches = matches[
         overall_al <= matches["cutoff"]
@@ -686,7 +676,7 @@ if st.button(
 
 
     # ==================================================
-    # DISPLAY RESULTS
+    # RESULTS
     # ==================================================
 
     st.divider()
@@ -710,21 +700,87 @@ if st.button(
 
     else:
 
+        # ==================================================
+        # RESULT FILTERS
+        # ==================================================
+
+        st.subheader(
+            "🔎 Refine results"
+        )
+
+        filter_col1, filter_col2 = st.columns(2)
+
+
+        with filter_col1:
+
+            selected_match_types = st.multiselect(
+                "Match category",
+                options=[
+                    "Comfortable",
+                    "Competitive",
+                    "Borderline"
+                ],
+                default=[
+                    "Comfortable",
+                    "Competitive",
+                    "Borderline"
+                ]
+            )
+
+
+        with filter_col2:
+
+            preferred_zone_only = st.checkbox(
+                "Show only schools in preferred zone",
+                value=False,
+                disabled=preferred_zone == "Any"
+            )
+
+
         # ----------------------------------------------
-        # SUMMARY
+        # Apply match-category filter
         # ----------------------------------------------
 
+        filtered_matches = matches[
+            matches["match_label"].isin(
+                selected_match_types
+            )
+        ].copy()
+
+
+        # ----------------------------------------------
+        # Apply zone-only filter
+        # ----------------------------------------------
+
+        if (
+            preferred_zone_only
+            and preferred_zone != "Any"
+        ):
+
+            filtered_matches = filtered_matches[
+                filtered_matches["zone"]
+                == preferred_zone
+            ].copy()
+
+
+        st.divider()
+
+
+        # ==================================================
+        # RESULT SUMMARY
+        # ==================================================
+
         st.write(
-            f"**{len(matches)} potential match"
-            f"{'es' if len(matches) != 1 else ''} found**"
+            f"**{len(filtered_matches)} potential match"
+            f"{'es' if len(filtered_matches) != 1 else ''} shown**"
         )
 
 
         if preferred_zone != "Any":
 
             zone_count = len(
-                matches[
-                    matches["zone"]
+                filtered_matches[
+                    filtered_matches["zone"]
                     == preferred_zone
                 ]
             )
@@ -737,22 +793,22 @@ if st.button(
 
 
         comfortable_count = len(
-            matches[
-                matches["match_label"]
+            filtered_matches[
+                filtered_matches["match_label"]
                 == "Comfortable"
             ]
         )
 
         competitive_count = len(
-            matches[
-                matches["match_label"]
+            filtered_matches[
+                filtered_matches["match_label"]
                 == "Competitive"
             ]
         )
 
         borderline_count = len(
-            matches[
-                matches["match_label"]
+            filtered_matches[
+                filtered_matches["match_label"]
                 == "Borderline"
             ]
         )
@@ -762,23 +818,18 @@ if st.button(
 
 
         with summary1:
-
             st.metric(
                 "Comfortable",
                 comfortable_count
             )
 
-
         with summary2:
-
             st.metric(
                 "Competitive",
                 competitive_count
             )
 
-
         with summary3:
-
             st.metric(
                 "Borderline",
                 borderline_count
@@ -789,10 +840,127 @@ if st.button(
 
 
         # ==================================================
+        # COP VISUALISATION
+        # ==================================================
+
+        st.subheader(
+            "📊 Student score vs historical COP"
+        )
+
+        st.caption(
+            "Lower AL scores are stronger. Each dot represents a school's "
+            "historical cut-off point. The vertical dashed line shows "
+            "the student's PSLE score."
+        )
+
+
+        if not filtered_matches.empty:
+
+            chart_data = (
+                filtered_matches
+                .head(25)
+                .copy()
+            )
+
+            chart_data["Historical COP"] = (
+                chart_data["cutoff"]
+            )
+
+            chart_data["School"] = (
+                chart_data["school_name"]
+            )
+
+            chart_data["Match"] = (
+                chart_data["match_label"]
+            )
+
+
+            fig = px.scatter(
+                chart_data,
+                x="Historical COP",
+                y="School",
+                symbol="Match",
+                hover_data={
+                    "zone": True,
+                    "gender": True,
+                    "pathway": True,
+                    "Historical COP": True,
+                    "School": False
+                },
+                title="Historical COP of potential school matches"
+            )
+
+
+            fig.add_vline(
+                x=overall_al,
+                line_dash="dash",
+                annotation_text=f"Student AL {overall_al}",
+                annotation_position="top"
+            )
+
+
+            fig.update_xaxes(
+                range=[3.5, 32.5],
+                dtick=1,
+                title="PSLE Achievement Level"
+            )
+
+
+            fig.update_yaxes(
+                title=""
+            )
+
+
+            fig.update_layout(
+                height=max(
+                    450,
+                    len(chart_data) * 32
+                )
+            )
+
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+
+            if len(filtered_matches) > 25:
+
+                st.caption(
+                    "The chart shows the first 25 ranked matches. "
+                    "All matching schools remain listed below."
+                )
+
+        else:
+
+            st.info(
+                "No schools match the selected filters."
+            )
+
+
+        st.divider()
+
+
+        # ==================================================
         # SCHOOL CARDS
         # ==================================================
 
-        for _, school in matches.iterrows():
+        st.subheader(
+            "🏫 School details"
+        )
+
+
+        if filtered_matches.empty:
+
+            st.warning(
+                "No schools match the selected result filters. "
+                "Try selecting additional match categories or removing "
+                "the preferred-zone filter."
+            )
+
+
+        for _, school in filtered_matches.iterrows():
 
             with st.container(
                 border=True
@@ -807,7 +975,7 @@ if st.button(
 
 
                 # ------------------------------------------
-                # SCHOOL NAME / DETAILS
+                # SCHOOL NAME AND DETAILS
                 # ------------------------------------------
 
                 with col1:
@@ -974,7 +1142,7 @@ if st.button(
 
 
                 # ------------------------------------------
-                # SOURCE
+                # COP SOURCE
                 # ------------------------------------------
 
                 if pd.notna(
