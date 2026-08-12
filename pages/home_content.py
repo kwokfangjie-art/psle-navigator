@@ -7,40 +7,20 @@ import streamlit as st
 
 st.markdown(
     """
-    <div style="
-        padding: 2rem 0 1rem 0;
-        text-align: center;
-    ">
-        <div style="
-            display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 999px;
-            background: rgba(49, 130, 206, 0.10);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        ">
-            🎓 For Singapore parents & students
-        </div>
-
-        <h1 style="
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
-        ">
-            Navigate your child's secondary school journey with confidence
-        </h1>
-
-        <p style="
-            font-size: 1.15rem;
-            max-width: 800px;
-            margin: 0 auto 1.5rem auto;
-            color: #666;
-        ">
-            Explore potential secondary school matches, understand historical
-            cut-off points, discover relevant CCAs, and ask an AI assistant
-            about Singapore's PSLE-to-secondary-school transition.
-        </p>
+<div style="text-align: center; padding: 2rem 0 1rem 0;">
+    <div style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(49, 130, 206, 0.10); font-size: 0.9rem; margin-bottom: 1rem;">
+        🎓 For Singapore parents & students
     </div>
-    """,
+    <h1 style="font-size: 3rem; margin-bottom: 0.75rem;">
+        Navigate your child's secondary school journey with confidence
+    </h1>
+    <p style="font-size: 1.15rem; max-width: 800px; margin: 0 auto 1.5rem auto; color: #888;">
+        Explore potential secondary school matches, understand historical
+        cut-off points, discover relevant CCAs, and ask an AI assistant
+        about Singapore's PSLE-to-secondary-school transition.
+    </p>
+</div>
+""",
     unsafe_allow_html=True
 )
 
