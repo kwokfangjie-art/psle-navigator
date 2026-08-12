@@ -8,14 +8,15 @@ import streamlit as st
 st.title("ℹ️ About PSLE Navigator")
 
 st.write(
-    "PSLE Navigator is an educational prototype designed to help "
+    "PSLE Navigator is an educational GenAI prototype designed to help "
     "Singapore parents and Primary 6 students better understand the "
     "transition from PSLE to secondary school."
 )
 
 st.info(
-    "This application was developed as part of an AI Bootcamp capstone "
-    "project and is intended for educational and demonstration purposes only."
+    "This application was developed as an AI Bootcamp capstone project "
+    "by a team of two and is intended for educational and demonstration "
+    "purposes only."
 )
 
 st.divider()
@@ -29,14 +30,22 @@ st.header("🎯 Project overview")
 
 st.write(
     """
-The secondary school admission journey can involve many different pieces
-of information — PSLE Achievement Levels, Posting Groups, historical
-school cut-off points, Integrated Programme options, school location,
-CCAs, Direct School Admission and other pathways.
+Choosing a secondary school can involve many different pieces of
+information — PSLE Achievement Levels, Posting Groups, historical
+cut-off points, school programmes, CCAs, DSA-Sec and other pathways.
 
 PSLE Navigator brings selected information together into one interactive
-application so that users can explore how different factors may relate
-to a student's profile.
+application and combines conventional data processing with Generative AI
+and Retrieval-Augmented Generation (RAG).
+
+The application contains two main user-facing features:
+
+1. **School Explorer** — personalised exploration of potential secondary
+   school options using structured school, historical COP and CCA data.
+
+2. **AI Navigator** — a conversational assistant that combines structured
+   school-data retrieval with a FAISS document knowledge base to provide
+   grounded explanations and personalised guidance.
 """
 )
 
@@ -49,20 +58,22 @@ st.header("❓ Problem statement")
 
 st.write(
     """
-Parents and students may need to consult multiple websites and information
-sources when considering secondary school options.
+Parents and students may need to consult multiple websites, documents and
+school information sources when considering secondary school options.
 
-It can also be difficult to understand how general information relates
-to an individual student's situation.
+It can also be difficult to understand how general policies and school
+information relate to an individual student's circumstances.
 
 PSLE Navigator therefore aims to:
 
 - consolidate selected school and admission information;
-- present the information in a more accessible format;
-- personalise the experience using non-sensitive profile inputs;
-- provide interactive explanations through an AI assistant; and
-- help users understand the factors they may wish to consider when
-  researching secondary schools.
+- make the information easier to explore;
+- personalise the experience using non-sensitive student inputs;
+- provide conversational explanations through Generative AI;
+- use RAG to ground policy and process explanations in a custom
+  knowledge base; and
+- help users identify factors they may wish to consider when researching
+  secondary schools.
 """
 )
 
@@ -86,89 +97,190 @@ The prototype is designed primarily for:
 
 
 # ==================================================
-# OBJECTIVES
+# CORE FEATURES
 # ==================================================
 
-st.header("✅ Project objectives")
+st.header("🧩 Core features")
 
-st.write(
-    """
-The project has four main objectives:
-
-1. **Consolidate information**  
-   Bring together selected school profile, historical cut-off point and
-   CCA information in one interface.
-
-2. **Personalise guidance**  
-   Use non-sensitive inputs such as PSLE AL score, gender, preferred zone
-   and interests to tailor results.
-
-3. **Improve understanding**  
-   Use an AI assistant to explain concepts such as S1 Posting, DSA-Sec,
-   Integrated Programme and school selection considerations.
-
-4. **Present information effectively**  
-   Use forms, filters, school cards and visualisations to make the
-   information easier to explore.
-"""
-)
+feature_1, feature_2 = st.columns(2)
 
 
-# ==================================================
-# CORE USE CASES
-# ==================================================
+with feature_1:
 
-st.header("🧩 Core use cases")
-
-use_case_1, use_case_2 = st.columns(2)
-
-
-with use_case_1:
-
-    st.subheader("🎓 Use Case 1 — School Explorer")
+    st.subheader("🎓 1. School Explorer")
 
     st.write(
         """
-The School Explorer allows users to enter a student profile and view
-potential school matches based on selected criteria.
+The School Explorer uses deterministic Python logic to compare a student
+profile against selected school information.
 
-Key features include:
+Features include:
 
 - PSLE subject AL inputs;
 - automatic overall AL calculation;
 - gender matching;
 - pathway selection;
-- preferred school zone;
+- preferred geographical zone;
 - historical COP comparison;
 - IP and SAP indicators;
-- CCA interest matching;
+- CCA-interest matching;
 - result filters;
-- match categories; and
-- an interactive historical COP visualisation.
+- explanatory match categories; and
+- historical COP visualisation.
 """
     )
 
 
-with use_case_2:
+with feature_2:
 
-    st.subheader("🤖 Use Case 2 — AI Navigator")
+    st.subheader("🤖 2. AI Navigator")
 
     st.write(
         """
-The AI Navigator provides conversational guidance about PSLE and
-secondary school admission.
+The AI Navigator provides conversational guidance using a hybrid
+retrieval architecture.
 
-Key features include:
+Features include:
 
-- shared student profile context;
-- personalised answers;
-- prompt chaining;
+- student-profile context;
 - question intent classification;
-- retrieval from local school, COP and CCA datasets;
-- named-school lookup;
-- grounded school-specific responses;
-- conversation memory; and
+- structured school/COP/CCA retrieval;
+- FAISS semantic document retrieval;
+- Retrieval-Augmented Generation;
+- grounded responses;
+- source-document display;
+- conversation history; and
 - prompt-injection safeguards.
+"""
+    )
+
+
+# ==================================================
+# RAG KNOWLEDGE BASE
+# ==================================================
+
+st.header("🧠 RAG knowledge base")
+
+st.write(
+    """
+PSLE Navigator includes a custom document knowledge base for
+Retrieval-Augmented Generation (RAG).
+
+Reference documents are processed using the following pipeline:
+"""
+)
+
+st.code(
+    """
+Reference documents
+        ↓
+PDF / TXT text extraction
+        ↓
+LangChain text splitting
+        ↓
+Overlapping text chunks
+        ↓
+OpenAI embeddings
+        ↓
+FAISS vector store
+        ↓
+Semantic similarity search
+        ↓
+Relevant document chunks
+        ↓
+Grounded LLM response
+""",
+    language="text"
+)
+
+st.write(
+    """
+The knowledge base contains a small curated corpus covering topics such
+as:
+
+- PSLE scoring;
+- Secondary 1 Posting;
+- Full Subject-Based Banding and Posting Groups;
+- DSA-Sec;
+- Integrated Programme;
+- Higher Mother Tongue and SAP schools; and
+- considerations when choosing a secondary school.
+
+This document knowledge base complements, rather than replaces, the
+structured school datasets used elsewhere in the application.
+"""
+)
+
+
+# ==================================================
+# ADMIN DOCUMENT UPLOAD
+# ==================================================
+
+st.header("🗂️ Document management")
+
+st.write(
+    """
+The application includes an Admin-only Knowledge Base page.
+
+Administrators can:
+
+- upload PDF and TXT reference documents;
+- view the current document collection;
+- build or rebuild the FAISS vector index; and
+- reset the knowledge base.
+
+Uploaded documents are extracted, split into chunks and converted into
+embeddings before being stored in FAISS for semantic retrieval.
+"""
+)
+
+
+# ==================================================
+# USER ROLES
+# ==================================================
+
+st.header("🔐 User roles")
+
+st.write(
+    """
+The prototype includes a simple two-user login system to demonstrate
+role-based access.
+"""
+)
+
+role_1, role_2 = st.columns(2)
+
+with role_1:
+
+    st.subheader("👨‍💼 Admin")
+
+    st.write(
+        """
+Admin users can access:
+
+- School Explorer;
+- AI Navigator;
+- Knowledge Base document management;
+- About Us; and
+- Methodology.
+"""
+    )
+
+
+with role_2:
+
+    st.subheader("👤 User")
+
+    st.write(
+        """
+Standard users can access:
+
+- School Explorer;
+- AI Navigator;
+- About Us; and
+- Methodology.
+
+Knowledge Base administration is hidden from this role.
 """
     )
 
@@ -181,49 +293,114 @@ st.header("📚 Data sources")
 
 st.write(
     """
-The prototype uses a combination of official and supplementary
-publicly available information.
+PSLE Navigator uses two main categories of information.
 """
 )
 
-
-st.subheader("Official MOE / Government data")
+st.subheader("1. Structured datasets")
 
 st.write(
     """
-**1. MOE School Directory and Information — General information of schools**
+Structured data is used for deterministic school matching and
+school-specific retrieval.
 
-Used for:
+The prototype contains:
+
+**General school information**
+
+Used for information such as:
+
 - school name;
-- school type;
 - gender profile;
 - geographical zone;
+- school type;
 - Integrated Programme indicator;
 - SAP indicator; and
 - school website.
 
-**2. MOE School Directory and Information — Co-curricular activities**
+**Co-Curricular Activities**
 
 Used for:
+
 - school-level CCA offerings;
-- CCA category information; and
-- matching selected student interests with related school activities.
+- CCA categories; and
+- matching selected student interests with related activities.
+
+**Historical PSLE COP data**
+
+Used for:
+
+- historical cut-off points;
+- pathway-specific comparisons; and
+- school exploration.
+
+Historical COPs are reference points only and do not guarantee admission.
 """
 )
 
 
-st.subheader("Historical cut-off point data")
+st.subheader("2. RAG reference documents")
 
 st.write(
     """
-The prototype also contains a curated dataset of historical PSLE cut-off
-points for selected schools.
+A small document corpus provides explanatory information about PSLE and
+secondary-school transition topics.
 
-These values are used only as historical reference points for the
-prototype's matching logic.
+The documents are converted into embeddings and stored in FAISS.
 
-Historical cut-off points may change from year to year and must not be
-interpreted as guaranteed admission thresholds.
+When a question is asked, semantic similarity search retrieves relevant
+chunks before the final language-model response is generated.
+"""
+)
+
+
+# ==================================================
+# HYBRID RETRIEVAL
+# ==================================================
+
+st.header("🔀 Hybrid retrieval")
+
+st.write(
+    """
+The AI Navigator uses two retrieval approaches because different types
+of information are better represented in different ways.
+"""
+)
+
+st.code(
+    """
+User question
+      ↓
+Intent classification
+      ↓
+      ├───────────────┐
+      ↓               ↓
+Structured        FAISS RAG
+retrieval         retrieval
+      ↓               ↓
+School / COP /    Policy and
+CCA records       guidance documents
+      │               │
+      └───────┬───────┘
+              ↓
+       Combined context
+              ↓
+             LLM
+              ↓
+      Grounded response
+""",
+    language="text"
+)
+
+st.write(
+    """
+For example, a question about whether a particular school offers
+Robotics is better answered using the structured CCA dataset.
+
+A question about how DSA-Sec works is better suited to semantic retrieval
+from the document knowledge base.
+
+Questions can also use both sources where appropriate.
 """
 )
 
@@ -236,10 +413,10 @@ st.header("👤 Personalisation")
 
 st.write(
     """
-The application uses generic, non-sensitive profile information to
-personalise results.
+The application uses non-sensitive student profile information to
+personalise results and explanations.
 
-The profile may contain:
+The profile may include:
 
 - predicted or actual subject AL scores;
 - overall PSLE score;
@@ -251,34 +428,34 @@ The profile may contain:
 - selected interests and talents; and
 - Higher Mother Tongue status.
 
-The prototype does not require NRIC numbers, residential addresses,
-telephone numbers or other sensitive personal information.
+The same session-based profile can be used by both the School Explorer
+and AI Navigator.
 """
 )
 
 
 # ==================================================
-# HOW SCHOOL MATCHING WORKS
+# SCHOOL MATCHING
 # ==================================================
 
-st.header("🔎 How school matching works")
+st.header("🔎 School matching")
 
 st.write(
     """
 The School Explorer uses deterministic Python logic rather than asking
 the language model to calculate school matches.
 
-The current matching process considers:
+The matching process considers factors such as:
 
-1. the selected admission pathway;
+1. selected admission pathway;
 2. student gender and school gender profile;
-3. the student's overall AL relative to the historical COP;
+3. overall AL relative to the historical COP;
 4. preferred geographical zone;
-5. selected interests relative to published school CCA offerings; and
+5. selected interests relative to school CCA offerings; and
 6. selected programme preferences.
 
-Schools are then ranked and presented with an explanation of why they
-appear in the results.
+This separation reduces the risk of asking the LLM to perform calculations
+that can be handled more reliably using conventional code.
 """
 )
 
@@ -291,7 +468,7 @@ st.subheader("Historical COP match categories")
 
 st.write(
     """
-For the purposes of this educational prototype, schools may be labelled:
+For this educational prototype, school matches may be labelled:
 
 - **Comfortable** — student's AL is at least 3 points stronger than the
   historical COP;
@@ -300,8 +477,9 @@ For the purposes of this educational prototype, schools may be labelled:
 - **Borderline** — student's AL is exactly at the historical COP.
 
 These labels describe the student's position relative to a historical
-reference point only. They are not probabilities and do not predict
-admission outcomes.
+reference point only.
+
+They are not probabilities and do not predict admission outcomes.
 """
 )
 
@@ -314,39 +492,66 @@ st.header("🏅 Interest and CCA matching")
 
 st.write(
     """
-Selected student interests are mapped to related CCA descriptions in
-the MOE CCA dataset.
+Selected student interests are mapped to related descriptions in the
+CCA dataset.
 
 For example, a Robotics & Coding interest may be matched with activities
 such as Robotics or Infocomm Technology (Computing), where those
 activities are listed for a school.
 
 An interest match means only that a related CCA is present in the
-dataset.
+prototype dataset.
 
-**It does not mean that the school offers Direct School Admission
-(DSA-Sec) for that activity.**
+**It does not mean that the school offers DSA-Sec for that activity.**
 """
 )
 
 
 # ==================================================
-# AI NAVIGATOR
+# AI GROUNDING
 # ==================================================
 
-st.header("🤖 AI Navigator")
+st.header("🛡️ AI grounding and safeguards")
 
 st.write(
     """
-The AI Navigator uses a large language model to explain information and
-respond to follow-up questions.
+The AI Navigator is instructed to use retrieved evidence when answering
+factual questions.
 
-For school-related questions, the application first retrieves relevant
-records from the local datasets before providing them to the language
-model as reference information.
+The prototype applies several safeguards:
 
-The AI is instructed not to invent school-specific details that are
-missing from the retrieved records.
+- school-specific claims should rely on retrieved structured records;
+- policy explanations should use relevant RAG documents where available;
+- missing information should not be invented;
+- historical COPs must not be presented as admission guarantees;
+- CCA availability must not be treated as proof of DSA-Sec availability;
+- retrieved documents are treated as reference material rather than
+  executable instructions; and
+- requests to reveal system prompts, API keys or hidden configuration
+  are rejected.
+"""
+)
+
+
+# ==================================================
+# TECHNOLOGY
+# ==================================================
+
+st.header("⚙️ Technology used")
+
+st.write(
+    """
+The prototype uses:
+
+- **Streamlit** — web application interface;
+- **Python / pandas** — structured data processing and matching;
+- **Plotly** — interactive visualisation;
+- **OpenAI API** — intent classification, embeddings and response
+  generation;
+- **LangChain** — document representation, text splitting and vector-store
+  integration;
+- **FAISS** — vector storage and semantic similarity search; and
+- **PyPDF** — PDF text extraction.
 """
 )
 
@@ -362,40 +567,21 @@ st.write(
 PSLE Navigator focuses on selected aspects of the Singapore
 PSLE-to-secondary-school transition.
 
-The prototype currently covers:
+The prototype covers:
 
 - PSLE AL scoring;
-- historical school COP comparisons;
-- school profile information;
+- historical COP comparisons;
+- selected school information;
 - school zone information;
-- selected IP and SAP indicators;
-- school CCA information;
+- IP and SAP indicators;
+- CCA information;
 - S1 Posting explanations;
 - DSA-Sec explanations;
-- Integrated Programme explanations;
-- Higher Mother Tongue discussions; and
-- personalised school exploration.
-"""
-)
-
-
-# ==================================================
-# OUT OF SCOPE
-# ==================================================
-
-st.header("🚫 Out of scope")
-
-st.write(
-    """
-The prototype does not attempt to provide:
-
-- guaranteed admission predictions;
-- real-time S1 Posting results;
-- complete modelling of affiliated-school priority;
-- complete DSA-Sec talent-area data for every school;
-- real-time school vacancies;
-- personalised professional advice; or
-- official decisions on behalf of MOE or any school.
+- Full Subject-Based Banding and Posting Groups;
+- Integrated Programme;
+- Higher Mother Tongue;
+- personalised school exploration; and
+- RAG-based question answering.
 """
 )
 
@@ -408,16 +594,21 @@ st.header("⚠️ Limitations")
 
 st.write(
     """
-Users should be aware of several important limitations:
+Users should be aware of several limitations:
 
 - Historical COPs may change from year to year.
-- The historical COP dataset is curated and does not necessarily include
-  every Singapore secondary school or pathway.
-- Affiliation priority is outside the current prototype scope.
+- The historical COP dataset is curated rather than a real-time national
+  admissions database.
+- Affiliated-school priority is outside the current prototype scope.
 - CCA availability does not establish DSA-Sec availability.
 - School programmes and policies may change.
-- The AI model may generate inaccurate, incomplete or outdated answers.
-- The AI assistant cannot replace official MOE guidance.
+- The RAG system can retrieve an irrelevant or incomplete text chunk.
+- The language model can still generate inaccurate information despite
+  grounding.
+- The document corpus is intentionally small for this prototype.
+- Uploaded documents and session information are not intended to provide
+  production-grade persistent storage.
+- The application cannot replace official MOE or school guidance.
 """
 )
 
@@ -433,14 +624,16 @@ st.write(
 The prototype is designed to avoid collecting sensitive personal
 information.
 
-Student profile information is used within the Streamlit session to
-personalise the School Explorer and AI Navigator.
+Student profile information and chat history are held within the
+Streamlit session for personalisation.
 
-The application does not require users to provide NRIC numbers, home
-addresses or other sensitive identifying information.
+The application does not require NRIC numbers, residential addresses or
+telephone numbers.
 
-The OpenAI API key is stored separately using Streamlit Secrets and is
-not stored in the public GitHub source code.
+API credentials and login credentials are stored using Streamlit Secrets
+rather than being hard-coded into the public source repository.
+
+LLM response calls are configured with `store=False`.
 """
 )
 
@@ -454,18 +647,20 @@ st.header("⚠️ Important notice")
 st.warning(
     """
 This web application is a prototype developed for **educational purposes
-only.**
+only**.
 
 The information provided here is **NOT intended for real-world usage**
 and should not be relied upon for making decisions.
 
-Furthermore, please be aware that the language model may generate
-inaccurate or incorrect information. You assume full responsibility for
-how you use any generated output.
+The language model may generate inaccurate or incorrect information, and
+RAG retrieval does not guarantee that the most relevant source will
+always be selected.
+
+Users assume responsibility for how generated output is used.
 
 Always verify current PSLE, S1 Posting, DSA-Sec and school information
 with the Ministry of Education and the relevant school's official
-website.
+information.
 """
 )
 
@@ -477,5 +672,6 @@ website.
 st.divider()
 
 st.caption(
-    "PSLE Navigator · AI Bootcamp Capstone Project · Educational prototype"
+    "PSLE Navigator · AI Bootcamp Capstone Project · "
+    "Hybrid structured retrieval + FAISS RAG"
 )
