@@ -7,6 +7,16 @@ st.set_page_config(
     layout="wide"
 )
 
+# --------------------------------------------------
+# Load school data
+# --------------------------------------------------
+
+@st.cache_data
+def load_school_data():
+    return pd.read_csv("data/schools.csv")
+
+schools = load_school_data()
+
 st.title("🎓 School Explorer")
 st.write(
     "Tell us about the student to explore secondary school options "
@@ -258,6 +268,123 @@ if st.button(
     else:
         st.write("**Interests:** Not specified")
 
-    st.info(
-        "School matching will be added in the next stage."
+    # --------------------------------------------------
+    # Find potential school matches
+    # --------------------------------------------------
+
+    matches = schools.copy()
+
+    # Match by gender
+    if gender == "Male":
+        matches = matches[
+            matches["gender"].isin(["Male", "Co-ed"])
+        ]
+    elif gender == "Female":
+        matches = matches[
+            matches["gender"].isin(["Female", "Co-ed"])
+        ]
+
+    # Match by indicative PSLE score range
+    matches = matches[
+        overall_al <= matches["score_high"]
+    ]
+
+    # Preferred zone is used for ranking, not exclusion
+    if preferred_zone != "Any":
+        matches["zone_match"] = (
+            matches["zone"] == preferred_zone
+        )
+        matches = matches.sort_values(
+            by=["zone_match", "score_high"],
+            ascending=[False, True]
+        )
+    else:
+        matches = matches.sort_values(
+            by="score_high",
+            ascending=True
+        )
+
+    st.divider()
+
+    st.subheader("🎓 Potential school matches")
+
+    st.caption(
+        "These results are based on indicative score ranges and "
+        "basic profile matching. They do not predict or guarantee admission."
     )
+
+    if matches.empty:
+        st.warning(
+            "No potential matches were found in the current school dataset."
+        )
+
+    else:
+        st.write(
+            f"**{len(matches)} potential match"
+            f"{'es' if len(matches) != 1 else ''} found**"
+        )
+
+        for _, school in matches.iterrows():
+
+            with st.container(border=True):
+
+                col1, col2 = st.columns([4, 1])
+
+                with col1:
+                    st.subheader(school["school_name"])
+
+                    st.write(
+                        f"**{school['gender']}** · "
+                        f"{school['zone']} · "
+                        f"Indicative AL {school['score_low']}–{school['score_high']}"
+                    )
+
+                with col2:
+
+                    if overall_al <= school["score_low"]:
+                        st.success("Strong match")
+
+                    elif overall_al <= school["score_high"]:
+                        st.info("Within range")
+
+                st.write("**Why this school appears:**")
+
+                st.write(
+                    "✓ Student's AL score is within or stronger than "
+                    "the school's indicative range."
+                )
+
+                st.write(
+                    "✓ School gender matches the student's profile."
+                )
+
+                if preferred_zone != "Any":
+
+                    if school["zone"] == preferred_zone:
+                        st.write("✓ Matches preferred school zone.")
+
+                    else:
+                        st.write(
+                            "• Outside preferred zone, but shown as "
+                            "another potential option."
+                        )
+
+                programme_badges = []
+
+                if school["ip"] == "Yes":
+                    programme_badges.append("IP")
+
+                if school["sap"] == "Yes":
+                    programme_badges.append("SAP")
+
+                if programme_badges:
+                    st.write(
+                        "**Programmes:** "
+                        + " · ".join(programme_badges)
+                    )
+
+                if pd.notna(school["website"]):
+                    st.link_button(
+                        "Visit school website ↗",
+                        school["website"]
+                    )
