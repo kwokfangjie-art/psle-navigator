@@ -7,26 +7,50 @@ import streamlit as st
 
 st.markdown(
     """
-<div style="text-align: center; padding: 2rem 0 1rem 0;">
-    <div style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(49, 130, 206, 0.10); font-size: 0.9rem; margin-bottom: 1rem;">
+<div style="text-align: center; padding: 1.2rem 0 1rem 0;">
+    <div style="
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: #EAF2F8;
+        color: #1F4E79;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    ">
         🎓 For Singapore parents & students
     </div>
-    <h1 style="font-size: 3rem; margin-bottom: 0.75rem;">
+
+    <h1 style="
+        font-size: 3rem;
+        line-height: 1.15;
+        margin-bottom: 0.9rem;
+        color: #1F2937;
+    ">
         Navigate your child's secondary school journey with confidence
     </h1>
-    <p style="font-size: 1.15rem; max-width: 800px; margin: 0 auto 1.5rem auto; color: #888;">
-        Explore potential secondary school matches, understand historical
-        cut-off points, discover relevant CCAs, and ask an AI assistant
-        about Singapore's PSLE-to-secondary-school transition.
+
+    <p style="
+        font-size: 1.1rem;
+        max-width: 780px;
+        margin: 0 auto;
+        color: #6B7280;
+        line-height: 1.6;
+    ">
+        Explore potential school matches, understand historical cut-off points,
+        discover relevant CCAs, and get grounded AI guidance on Singapore's
+        PSLE-to-secondary-school transition.
     </p>
 </div>
 """,
     unsafe_allow_html=True
 )
 
+st.write("")
+
 
 # ==================================================
-# MAIN ACTIONS
+# PRIMARY ACTIONS
 # ==================================================
 
 col1, col2 = st.columns(2)
@@ -44,7 +68,7 @@ with col1:
 
         st.write(
             """
-Enter a student profile and explore potential school matches based on:
+Create a student profile and explore potential school matches using:
 
 - overall PSLE AL score;
 - historical school COPs;
@@ -79,17 +103,16 @@ with col2:
 
         st.write(
             """
-Ask follow-up questions about:
+Ask questions about:
 
 - S1 Posting;
 - DSA-Sec;
 - Integrated Programme;
-- SAP schools;
-- Higher Mother Tongue;
+- SAP and Higher Mother Tongue;
 - school CCAs; and
 - individual secondary schools.
 
-The AI can use the student profile and retrieved school data to personalise its answers.
+The AI can use the student profile and retrieved school or RAG data to personalise its answers.
 """
         )
 
@@ -107,74 +130,47 @@ st.divider()
 
 
 # ==================================================
-# FEATURE OVERVIEW
+# VALUE PROPOSITION
 # ==================================================
 
 st.header(
-    "What can PSLE Navigator do?"
+    "Why use PSLE Navigator?"
 )
 
-feature1, feature2 = st.columns(2)
+value1, value2, value3 = st.columns(3)
 
 
-with feature1:
+with value1:
 
-    with st.container(
-        border=True
-    ):
+    st.markdown(
+        """
+### 📊 Personalised
 
-        st.subheader(
-            "📊 Personalised school matching"
-        )
-
-        st.write(
-            "Compare the student's PSLE score against historical "
-            "cut-off points and view potential school matches."
-        )
+Uses the student's PSLE profile, preferences and interests to tailor school exploration and AI guidance.
+"""
+    )
 
 
-    with st.container(
-        border=True
-    ):
+with value2:
 
-        st.subheader(
-            "🏅 Interest & CCA matching"
-        )
+    st.markdown(
+        """
+### 🧠 Grounded
 
-        st.write(
-            "Match selected interests with related CCA offerings "
-            "from the MOE school dataset."
-        )
+Combines structured school data with a FAISS RAG knowledge base instead of relying only on the language model.
+"""
+    )
 
 
-with feature2:
+with value3:
 
-    with st.container(
-        border=True
-    ):
+    st.markdown(
+        """
+### 🔎 Explainable
 
-        st.subheader(
-            "💬 Grounded AI guidance"
-        )
-
-        st.write(
-            "Ask school-specific questions using retrieved school, "
-            "historical COP and CCA information."
-        )
-
-
-    with st.container(
-        border=True
-    ):
-
-        st.subheader(
-            "📈 Interactive visualisation"
-        )
-
-        st.write(
-            "Visualise the student's AL score against historical "
-            "school cut-off points."
-        )
+Shows why schools appear, historical COP context and retrieved RAG sources where relevant.
+"""
+    )
 
 
 st.divider()
@@ -188,44 +184,39 @@ st.header(
     "How it works"
 )
 
-step1, step2, step3 = (
-    st.columns(3)
-)
+step1, step2, step3 = st.columns(3)
 
 
 with step1:
 
-    st.subheader(
-        "1️⃣ Create a profile"
-    )
+    st.markdown(
+        """
+### 1️⃣ Create a profile
 
-    st.write(
-        "Enter generic, non-sensitive details such as "
-        "PSLE AL scores, gender, zone and interests."
+Enter non-sensitive details such as PSLE AL scores, gender, preferred zone and interests.
+"""
     )
 
 
 with step2:
 
-    st.subheader(
-        "2️⃣ Explore schools"
-    )
+    st.markdown(
+        """
+### 2️⃣ Explore schools
 
-    st.write(
-        "The application uses deterministic Python logic "
-        "to filter and rank potential school matches."
+Python filters and ranks potential matches using structured school, COP and CCA data.
+"""
     )
 
 
 with step3:
 
-    st.subheader(
-        "3️⃣ Ask follow-up questions"
-    )
+    st.markdown(
+        """
+### 3️⃣ Ask questions
 
-    st.write(
-        "The AI Navigator uses the profile and retrieved "
-        "reference data to provide personalised explanations."
+The AI Navigator uses structured retrieval and RAG to provide grounded explanations.
+"""
     )
 
 
@@ -244,16 +235,16 @@ st.write(
     """
 PSLE Navigator consolidates selected information from:
 
-- MOE School Directory and Information — General information of schools;
-- MOE School Directory and Information — Co-curricular activities;
+- MOE school information;
+- MOE co-curricular activity information;
 - a curated historical PSLE cut-off point dataset; and
-- the application's student profile and matching logic.
+- a small RAG document knowledge base covering PSLE and secondary-school transition topics.
 """
 )
 
 st.caption(
-    "Historical cut-off points are used as reference points only "
-    "and may not represent future admission outcomes."
+    "Historical cut-off points are reference points only "
+    "and do not guarantee future admission outcomes."
 )
 
 
@@ -268,9 +259,7 @@ st.header(
     "📖 Project documentation"
 )
 
-doc_col1, doc_col2 = (
-    st.columns(2)
-)
+doc_col1, doc_col2 = st.columns(2)
 
 
 with doc_col1:
@@ -301,35 +290,26 @@ st.divider()
 
 
 # ==================================================
-# REQUIRED ASSIGNMENT DISCLAIMER
+# IMPORTANT NOTICE
 # ==================================================
 
 with st.expander(
-    "⚠️ IMPORTANT NOTICE — Please read"
+    "⚠️ Important notice"
 ):
 
     st.warning(
         """
-**IMPORTANT NOTICE:** This web application is a prototype developed for
-**educational purposes only.** The information provided here is
-**NOT intended for real-world usage** and should not be relied upon for
-making any decisions, especially those related to financial, legal, or
-healthcare matters.
+This web application is a prototype developed for **educational purposes only**.
 
-**Furthermore, please be aware that the LLM may generate inaccurate or
-incorrect information. You assume full responsibility for how you use any
-generated output.**
+The information provided here is **not intended for real-world usage**
+and should not be relied upon for making decisions.
 
-Always consult with qualified professionals for accurate and personalised
-advice.
-"""
-    )
+The language model may generate inaccurate or incorrect information.
+RAG retrieval also does not guarantee that the most relevant source will
+always be selected.
 
-    st.write(
-        """
-For PSLE and secondary-school admission matters, always verify current
-information with the Ministry of Education and the relevant school's
-official website.
+Always verify current PSLE, S1 Posting, DSA-Sec and school information
+with the Ministry of Education and the relevant school's official information.
 """
     )
 
@@ -343,4 +323,3 @@ st.divider()
 st.caption(
     "PSLE Navigator · AI Bootcamp Capstone Project · Educational prototype"
 )
-
