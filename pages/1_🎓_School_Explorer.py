@@ -2,20 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import re
-from utils.auth import require_password
-
-
-# ==================================================
-# PAGE CONFIG
-# ==================================================
-
-st.set_page_config(
-    page_title="School Explorer | PSLE Navigator",
-    page_icon="🎓",
-    layout="wide"
-)
-
-require_password()
 
 
 # ==================================================
@@ -66,14 +52,8 @@ def normalise_school_name(name):
 
 
 # ==================================================
-# INTEREST → CCA MATCHING RULES
+# INTEREST → CCA MAPPING
 # ==================================================
-
-# IMPORTANT:
-# These are CCA matches, NOT DSA guarantees.
-#
-# The values below are matched against MOE's
-# cca_grouping_desc field.
 
 INTEREST_CCA_MAP = {
 
@@ -195,7 +175,7 @@ INTEREST_CCA_MAP = {
 
 
 # ==================================================
-# LOAD OFFICIAL MOE SCHOOL DATA
+# LOAD MOE SCHOOL DATA
 # ==================================================
 
 @st.cache_data
@@ -211,10 +191,6 @@ def load_school_data():
         )
     ].copy()
 
-    # ----------------------------------------------
-    # Gender
-    # ----------------------------------------------
-
     gender_map = {
         "CO-ED SCHOOL": "Co-ed",
         "BOYS' SCHOOL": "Boys",
@@ -226,19 +202,11 @@ def load_school_data():
         .map(gender_map)
     )
 
-    # ----------------------------------------------
-    # Zone
-    # ----------------------------------------------
-
     df["zone"] = (
         df["zone_code"]
         .astype(str)
         .str.title()
     )
-
-    # ----------------------------------------------
-    # Rename useful fields
-    # ----------------------------------------------
 
     df = df.rename(
         columns={
@@ -247,10 +215,6 @@ def load_school_data():
             "ip_ind": "ip"
         }
     )
-
-    # ----------------------------------------------
-    # Matching key
-    # ----------------------------------------------
 
     df["school_key"] = (
         df["school_name"]
@@ -269,7 +233,9 @@ def load_school_data():
         "website"
     ]
 
-    return df[keep_columns].copy()
+    return df[
+        keep_columns
+    ].copy()
 
 
 # ==================================================
@@ -292,7 +258,7 @@ def load_psle_data():
 
 
 # ==================================================
-# LOAD OFFICIAL MOE CCA DATA
+# LOAD MOE CCA DATA
 # ==================================================
 
 @st.cache_data
@@ -302,20 +268,17 @@ def load_cca_data():
         "data/CocurricularactivitiesCCAs.csv"
     )
 
-    # Keep only schools with secondary-level sections
     df = df[
         df["school_section"].isin(
             SECONDARY_LEVELS
         )
     ].copy()
 
-    # Create matching key
     df["school_key"] = (
         df["School_name"]
         .apply(normalise_school_name)
     )
 
-    # Clean CCA description
     df["cca_grouping_desc"] = (
         df["cca_grouping_desc"]
         .fillna("")
@@ -333,7 +296,7 @@ cca_data = load_cca_data()
 
 
 # ==================================================
-# FIND INTEREST MATCHES FOR A SCHOOL
+# INTEREST MATCHING
 # ==================================================
 
 def find_interest_matches(
@@ -351,7 +314,7 @@ def find_interest_matches(
         ].tolist()
     )
 
-    matched_interests = []
+    matched = []
 
     for interest in selected_interests:
 
@@ -366,24 +329,22 @@ def find_interest_matches(
             cca in school_ccas
             for cca in possible_ccas
         ):
-            matched_interests.append(
+            matched.append(
                 interest
             )
 
-    return matched_interests
+    return matched
 
 
 # ==================================================
 # PAGE HEADER
 # ==================================================
 
-st.title(
-    "🎓 School Explorer"
-)
+st.title("🎓 School Explorer")
 
 st.write(
     "Explore secondary schools that may match the student's "
-    "PSLE profile, location preferences and interests."
+    "PSLE profile, preferences and interests."
 )
 
 st.info(
@@ -398,9 +359,7 @@ st.divider()
 # STUDENT PROFILE
 # ==================================================
 
-st.subheader(
-    "👤 Student profile"
-)
+st.subheader("👤 Student profile")
 
 student_name = st.text_input(
     "Student's name (optional)",
@@ -443,15 +402,13 @@ scores = {}
 
 for subject in subjects:
 
-    scores[subject] = (
-        st.segmented_control(
-            subject,
-            options=list(
-                range(1, 9)
-            ),
-            default=None,
-            key=f"score_{subject}"
-        )
+    scores[subject] = st.segmented_control(
+        subject,
+        options=list(
+            range(1, 9)
+        ),
+        default=None,
+        key=f"score_{subject}"
     )
 
 
@@ -484,8 +441,7 @@ else:
     overall_al = None
 
     st.caption(
-        "Select all 4 subjects to calculate "
-        "the overall AL score."
+        "Select all 4 subjects to calculate the overall AL score."
     )
 
 
@@ -541,8 +497,8 @@ posting_pathway = st.selectbox(
 )
 
 st.caption(
-    "Only pathways currently available in the "
-    "historical cut-off dataset are shown."
+    "Only pathways available in the prototype's "
+    "historical COP dataset are shown."
 )
 
 st.divider()
@@ -569,8 +525,8 @@ preferred_zone = st.segmented_control(
 )
 
 st.caption(
-    "Schools in the preferred zone will be ranked first. "
-    "Schools outside the zone may still be shown."
+    "Schools in the preferred zone are ranked first. "
+    "Schools outside the zone may still appear."
 )
 
 
@@ -586,7 +542,7 @@ ip_priority = st.radio(
 )
 
 st.caption(
-    "IP schools offer a 6-year programme leading towards "
+    "IP schools offer a six-year programme leading towards "
     "qualifications such as the A-Levels or IB Diploma."
 )
 
@@ -627,8 +583,8 @@ interests = st.multiselect(
 )
 
 st.caption(
-    "Selected interests are compared against schools' "
-    "published CCA offerings to help identify relevant schools."
+    "Selected interests are compared against published "
+    "school CCA offerings."
 )
 
 if interests:
@@ -638,10 +594,10 @@ if interests:
         + ", ".join(interests)
     )
 
+
 st.warning(
     "CCA availability does not mean that the school offers "
-    "DSA-Sec for that activity. Always check the school's "
-    "official DSA-Sec information separately."
+    "DSA-Sec for that same activity."
 )
 
 st.divider()
@@ -671,7 +627,7 @@ st.divider()
 
 
 # ==================================================
-# PROFILE VALIDATION
+# VALIDATION
 # ==================================================
 
 profile_complete = (
@@ -682,7 +638,7 @@ profile_complete = (
 
 
 # ==================================================
-# SUBMIT
+# FIND SCHOOL MATCHES
 # ==================================================
 
 if st.button(
@@ -692,33 +648,70 @@ if st.button(
     disabled=not profile_complete
 ):
 
-        # ==================================================
+    # ==================================================
     # SAVE SHARED STUDENT PROFILE
     # ==================================================
 
-    st.session_state["student_profile"] = {
-        "name": student_name.strip() if student_name else "Student",
+    st.session_state[
+        "student_profile"
+    ] = {
+
+        "name": (
+            student_name.strip()
+            if student_name
+            else "Student"
+        ),
+
         "gender": gender,
+
         "overall_al": overall_al,
-        "english_al": scores["English Language"],
-        "mother_tongue_al": scores["Mother Tongue Language"],
-        "maths_al": scores["Mathematics"],
-        "science_al": scores["Science"],
+
+        "english_al": (
+            scores[
+                "English Language"
+            ]
+        ),
+
+        "mother_tongue_al": (
+            scores[
+                "Mother Tongue Language"
+            ]
+        ),
+
+        "maths_al": (
+            scores[
+                "Mathematics"
+            ]
+        ),
+
+        "science_al": (
+            scores[
+                "Science"
+            ]
+        ),
+
         "result_type": result_type,
+
         "pathway": posting_pathway,
+
         "preferred_zone": preferred_zone,
+
         "ip_priority": ip_priority,
+
         "dsa_interest": dsa_interest,
+
         "interests": interests,
+
         "higher_mt": higher_mt
     }
-    
+
+
     # ==================================================
     # PROFILE SUMMARY
     # ==================================================
 
     st.success(
-        "Student profile created successfully!"
+        "Student profile saved."
     )
 
     st.subheader(
@@ -729,6 +722,7 @@ if st.button(
         st.columns(3)
     )
 
+
     with col1:
 
         st.metric(
@@ -736,12 +730,14 @@ if st.button(
             f"AL {overall_al}"
         )
 
+
     with col2:
 
         st.metric(
             "Pathway",
             posting_pathway
         )
+
 
     with col3:
 
@@ -751,43 +747,19 @@ if st.button(
         )
 
 
-    st.write(
-        "**Gender:**",
-        gender
-    )
-
-    st.write(
-        "**Result type:**",
-        result_type
-    )
-
-
-    if interests:
-
-        st.write(
-            "**Interests:**",
-            ", ".join(interests)
-        )
-
-    else:
-
-        st.write(
-            "**Interests:** Not specified"
-        )
-
-
     # ==================================================
-    # FILTER COP DATA BY PATHWAY
+    # FILTER COP DATA
     # ==================================================
 
     selected_cop = psle_data[
-        psle_data["pathway"]
-        == posting_pathway
+        psle_data[
+            "pathway"
+        ] == posting_pathway
     ].copy()
 
 
     # ==================================================
-    # MERGE WITH OFFICIAL MOE DIRECTORY
+    # JOIN WITH SCHOOL DIRECTORY
     # ==================================================
 
     matches = schools.merge(
@@ -808,7 +780,9 @@ if st.button(
     if gender == "Male":
 
         matches = matches[
-            matches["gender"].isin(
+            matches[
+                "gender"
+            ].isin(
                 [
                     "Boys",
                     "Co-ed"
@@ -816,10 +790,13 @@ if st.button(
             )
         ].copy()
 
+
     elif gender == "Female":
 
         matches = matches[
-            matches["gender"].isin(
+            matches[
+                "gender"
+            ].isin(
                 [
                     "Girls",
                     "Co-ed"
@@ -832,48 +809,64 @@ if st.button(
     # HISTORICAL COP FILTER
     # ==================================================
 
-    # Lower AL is stronger.
-    # Only schools where the student's score is equal
-    # to or stronger than the historical COP are shown.
-
     matches = matches[
-        overall_al <= matches["cutoff"]
+        overall_al
+        <= matches[
+            "cutoff"
+        ]
     ].copy()
 
 
-    # ==================================================
-    # COP MARGIN
-    # ==================================================
-
     if not matches.empty:
 
-        matches["cop_margin"] = (
-            matches["cutoff"]
+        matches[
+            "cop_margin"
+        ] = (
+            matches[
+                "cutoff"
+            ]
             - overall_al
         )
 
 
     # ==================================================
-    # MATCH CLASSIFICATION
+    # MATCH CATEGORY
     # ==================================================
 
-    def classify_match(margin):
+    def classify_match(
+        margin
+    ):
 
         if margin >= 3:
-            return "Comfortable"
+
+            return (
+                "Comfortable"
+            )
 
         elif margin >= 1:
-            return "Competitive"
+
+            return (
+                "Competitive"
+            )
 
         else:
-            return "Borderline"
+
+            return (
+                "Borderline"
+            )
 
 
     if not matches.empty:
 
-        matches["match_label"] = (
-            matches["cop_margin"]
-            .apply(classify_match)
+        matches[
+            "match_label"
+        ] = (
+            matches[
+                "cop_margin"
+            ]
+            .apply(
+                classify_match
+            )
         )
 
 
@@ -883,22 +876,32 @@ if st.button(
 
     if preferred_zone != "Any":
 
-        matches["zone_match"] = (
-            matches["zone"]
+        matches[
+            "zone_match"
+        ] = (
+            matches[
+                "zone"
+            ]
             == preferred_zone
         )
 
     else:
 
-        matches["zone_match"] = True
+        matches[
+            "zone_match"
+        ] = True
 
 
     # ==================================================
     # IP MATCH
     # ==================================================
 
-    matches["ip_match"] = (
-        matches["ip"]
+    matches[
+        "ip_match"
+    ] = (
+        matches[
+            "ip"
+        ]
         .astype(str)
         .str.upper()
         .isin(
@@ -919,21 +922,28 @@ if st.button(
 
         matches[
             "matched_interests"
-        ] = matches[
-            "school_key"
-        ].apply(
-            lambda school_key:
-            find_interest_matches(
-                school_key,
-                interests
+        ] = (
+            matches[
+                "school_key"
+            ]
+            .apply(
+                lambda key:
+                find_interest_matches(
+                    key,
+                    interests
+                )
             )
         )
 
+
         matches[
             "interest_match_count"
-        ] = matches[
-            "matched_interests"
-        ].apply(len)
+        ] = (
+            matches[
+                "matched_interests"
+            ]
+            .apply(len)
+        )
 
     else:
 
@@ -963,9 +973,6 @@ if st.button(
     ]
 
 
-    # If interests are selected,
-    # rank schools with more CCA matches higher.
-
     if interests:
 
         sort_columns.append(
@@ -976,9 +983,6 @@ if st.button(
             False
         )
 
-
-    # If IP is a priority,
-    # rank IP schools higher.
 
     if ip_priority == "Yes":
 
@@ -1019,27 +1023,26 @@ if st.button(
 
 
     # ==================================================
-    # RESULTS
+    # DISPLAY RESULTS
     # ==================================================
 
     st.divider()
 
-    st.subheader(
+    st.header(
         "🎓 Potential school matches"
     )
 
     st.caption(
-        "Matches are based on historical cut-off points, "
-        "school profile information and selected preferences. "
-        "They do not predict admission."
+        "Matches are based on historical COPs and selected "
+        "profile criteria. They do not predict admission."
     )
 
 
     if matches.empty:
 
         st.warning(
-            "No potential matches were found in the "
-            "current historical cut-off dataset."
+            "No potential matches were found in the current "
+            "historical COP dataset."
         )
 
     else:
@@ -1090,34 +1093,29 @@ if st.button(
             )
 
 
-        # ----------------------------------------------
-        # CCA filter
-        # ----------------------------------------------
-
         interest_matches_only = (
             st.checkbox(
                 "Show only schools matching at least one selected interest",
                 value=False,
-                disabled=not bool(interests)
+                disabled=not bool(
+                    interests
+                )
             )
         )
 
 
-        # ----------------------------------------------
-        # Apply match-category filter
-        # ----------------------------------------------
+        # ==================================================
+        # APPLY FILTERS
+        # ==================================================
 
         filtered_matches = matches[
-            matches["match_label"]
-            .isin(
+            matches[
+                "match_label"
+            ].isin(
                 selected_match_types
             )
         ].copy()
 
-
-        # ----------------------------------------------
-        # Apply zone filter
-        # ----------------------------------------------
 
         if (
             preferred_zone_only
@@ -1130,13 +1128,10 @@ if st.button(
                         "zone"
                     ]
                     == preferred_zone
-                ].copy()
+                ]
+                .copy()
             )
 
-
-        # ----------------------------------------------
-        # Apply CCA-interest filter
-        # ----------------------------------------------
 
         if (
             interest_matches_only
@@ -1148,7 +1143,8 @@ if st.button(
                     filtered_matches[
                         "interest_match_count"
                     ] > 0
-                ].copy()
+                ]
+                .copy()
             )
 
 
@@ -1156,7 +1152,7 @@ if st.button(
 
 
         # ==================================================
-        # RESULT SUMMARY
+        # SUMMARY
         # ==================================================
 
         st.write(
@@ -1169,7 +1165,8 @@ if st.button(
             filtered_matches[
                 filtered_matches[
                     "match_label"
-                ] == "Comfortable"
+                ]
+                == "Comfortable"
             ]
         )
 
@@ -1177,7 +1174,8 @@ if st.button(
             filtered_matches[
                 filtered_matches[
                     "match_label"
-                ] == "Competitive"
+                ]
+                == "Competitive"
             ]
         )
 
@@ -1185,7 +1183,8 @@ if st.button(
             filtered_matches[
                 filtered_matches[
                     "match_label"
-                ] == "Borderline"
+                ]
+                == "Borderline"
             ]
         )
 
@@ -1219,10 +1218,6 @@ if st.button(
             )
 
 
-        # ----------------------------------------------
-        # Interest summary
-        # ----------------------------------------------
-
         if interests:
 
             interest_school_count = len(
@@ -1234,17 +1229,14 @@ if st.button(
             )
 
             st.info(
-                f"⭐ {interest_school_count} of the displayed "
-                f"schools offer at least one CCA related to "
-                f"the selected interests."
+                f"⭐ {interest_school_count} displayed school"
+                f"{'s' if interest_school_count != 1 else ''} "
+                f"offer at least one CCA related to the selected interests."
             )
 
 
-        st.write("")
-
-
         # ==================================================
-        # COP VISUALISATION
+        # VISUALISATION
         # ==================================================
 
         st.subheader(
@@ -1252,9 +1244,8 @@ if st.button(
         )
 
         st.caption(
-            "Lower AL scores are stronger. Each dot represents "
-            "a school's historical cut-off point. The vertical "
-            "dashed line shows the student's PSLE score."
+            "Lower AL scores are stronger. "
+            "The vertical dashed line represents the student's score."
         )
 
 
@@ -1266,29 +1257,41 @@ if st.button(
                 .copy()
             )
 
+
             chart_data[
                 "Historical COP"
-            ] = chart_data[
-                "cutoff"
-            ]
+            ] = (
+                chart_data[
+                    "cutoff"
+                ]
+            )
+
 
             chart_data[
                 "School"
-            ] = chart_data[
-                "school_name"
-            ]
+            ] = (
+                chart_data[
+                    "school_name"
+                ]
+            )
+
 
             chart_data[
                 "Match"
-            ] = chart_data[
-                "match_label"
-            ]
+            ] = (
+                chart_data[
+                    "match_label"
+                ]
+            )
+
 
             chart_data[
                 "Interest matches"
-            ] = chart_data[
-                "interest_match_count"
-            ]
+            ] = (
+                chart_data[
+                    "interest_match_count"
+                ]
+            )
 
 
             fig = px.scatter(
@@ -1299,14 +1302,12 @@ if st.button(
                 hover_data={
                     "zone": True,
                     "gender": True,
-                    "pathway": True,
                     "Interest matches": True,
                     "Historical COP": True,
                     "School": False
                 },
                 title=(
-                    "Historical COP of potential "
-                    "school matches"
+                    "Historical COP of potential school matches"
                 )
             )
 
@@ -1341,7 +1342,8 @@ if st.button(
             fig.update_layout(
                 height=max(
                     450,
-                    len(chart_data) * 32
+                    len(chart_data)
+                    * 32
                 )
             )
 
@@ -1357,23 +1359,16 @@ if st.button(
             ) > 25:
 
                 st.caption(
-                    "The chart shows the first 25 ranked "
-                    "matches. All matching schools remain "
-                    "listed below."
+                    "The chart displays the first 25 ranked schools. "
+                    "All matching schools remain listed below."
                 )
-
-        else:
-
-            st.info(
-                "No schools match the selected filters."
-            )
 
 
         st.divider()
 
 
         # ==================================================
-        # SCHOOL DETAILS
+        # SCHOOL CARDS
         # ==================================================
 
         st.subheader(
@@ -1384,14 +1379,10 @@ if st.button(
         if filtered_matches.empty:
 
             st.warning(
-                "No schools match the selected result "
-                "filters. Try broadening the filters."
+                "No schools match the selected filters. "
+                "Try broadening your criteria."
             )
 
-
-        # ==================================================
-        # SCHOOL CARDS
-        # ==================================================
 
         for _, school in (
             filtered_matches.iterrows()
@@ -1411,10 +1402,6 @@ if st.button(
                 )
 
 
-                # ------------------------------------------
-                # SCHOOL NAME
-                # ------------------------------------------
-
                 with col1:
 
                     st.subheader(
@@ -1430,10 +1417,6 @@ if st.button(
                     )
 
 
-                # ------------------------------------------
-                # MATCH LABEL
-                # ------------------------------------------
-
                 with col2:
 
                     if (
@@ -1447,6 +1430,7 @@ if st.button(
                             "Comfortable"
                         )
 
+
                     elif (
                         school[
                             "match_label"
@@ -1458,6 +1442,7 @@ if st.button(
                             "Competitive"
                         )
 
+
                     else:
 
                         st.warning(
@@ -1466,7 +1451,7 @@ if st.button(
 
 
                 # ------------------------------------------
-                # HISTORICAL COP
+                # COP
                 # ------------------------------------------
 
                 st.write(
@@ -1491,8 +1476,8 @@ if st.button(
                 if margin > 0:
 
                     st.write(
-                        f"**Difference:** Student's score "
-                        f"is {margin} AL point"
+                        f"**Difference:** "
+                        f"{margin} AL point"
                         f"{'s' if margin != 1 else ''} "
                         f"stronger than the historical COP."
                     )
@@ -1500,8 +1485,7 @@ if st.button(
                 else:
 
                     st.write(
-                        "**Difference:** Student's score "
-                        "is exactly at the historical COP."
+                        "**Difference:** Exactly at the historical COP."
                     )
 
 
@@ -1550,7 +1534,7 @@ if st.button(
 
 
                 # ------------------------------------------
-                # INTEREST / CCA MATCHES
+                # INTEREST MATCHES
                 # ------------------------------------------
 
                 matched_interests = (
@@ -1579,12 +1563,14 @@ if st.button(
                         )
                     )
 
+
                     st.write(
                         "**Related CCA offerings:** "
                         + " · ".join(
                             matched_interests
                         )
                     )
+
 
                 elif interests:
 
@@ -1595,7 +1581,7 @@ if st.button(
 
 
                 # ------------------------------------------
-                # WHY THIS SCHOOL APPEARS
+                # WHY THIS SCHOOL
                 # ------------------------------------------
 
                 st.write(
@@ -1603,20 +1589,16 @@ if st.button(
                 )
 
                 st.write(
-                    "✓ Student's score is equal to or "
-                    "stronger than the historical COP."
+                    "✓ Student's score is equal to or stronger "
+                    "than the historical COP."
                 )
 
                 st.write(
-                    "✓ School gender matches the "
-                    "student's profile."
+                    "✓ School gender matches the student's profile."
                 )
 
 
-                if (
-                    preferred_zone
-                    != "Any"
-                ):
+                if preferred_zone != "Any":
 
                     if (
                         school[
@@ -1626,16 +1608,14 @@ if st.button(
                     ):
 
                         st.write(
-                            "✓ Matches preferred "
-                            "school zone."
+                            "✓ Matches preferred school zone."
                         )
 
                     else:
 
                         st.write(
-                            "• Outside the preferred "
-                            "zone, but shown as another "
-                            "possible option."
+                            "• Outside the preferred zone, "
+                            "but shown as another possible option."
                         )
 
 
@@ -1643,7 +1623,7 @@ if st.button(
 
                     st.write(
                         "✓ Offers CCA activities related "
-                        "to the student's selected interests."
+                        "to selected interests."
                     )
 
 
@@ -1655,8 +1635,7 @@ if st.button(
                 ):
 
                     st.write(
-                        "✓ Offers the Integrated Programme, "
-                        "matching the stated preference."
+                        "✓ Offers the Integrated Programme."
                     )
 
 
@@ -1666,16 +1645,15 @@ if st.button(
 
                 st.caption(
                     "Historical COPs are reference points only. "
-                    "Actual posting outcomes may vary each year."
+                    "Actual posting outcomes may vary."
                 )
+
 
                 if matched_interests:
 
                     st.caption(
-                        "CCA matches indicate related activities "
-                        "listed in the MOE CCA dataset. They do "
-                        "not indicate DSA-Sec availability or "
-                        "eligibility."
+                        "CCA matches do not indicate DSA-Sec "
+                        "availability or eligibility."
                     )
 
 
@@ -1701,6 +1679,7 @@ if st.button(
                                 "source_url"
                             ]
                         ).strip()
+
 
                         if source_url:
 
