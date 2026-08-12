@@ -1285,37 +1285,24 @@ st.title(
 )
 
 st.write(
-    "Ask questions about PSLE, secondary schools "
-    "and admission pathways."
-)
-
-st.info(
-    "💡 The AI Navigator uses a hybrid retrieval approach: "
-    "structured school/COP/CCA data plus document-based RAG "
-    "from the FAISS knowledge base."
+    "Ask questions about schools, S1 Posting, DSA-Sec, CCAs "
+    "and other secondary-school options."
 )
 
 
 # ==================================================
-# RAG STATUS
+# RAG AVAILABILITY
 # ==================================================
 
 vector_store_status = (
     load_vector_store()
 )
 
-
-if vector_store_status is not None:
-
-    st.success(
-        "🧠 RAG knowledge base connected"
-    )
-
-else:
+if vector_store_status is None:
 
     st.warning(
-        "No FAISS knowledge base is currently available. "
-        "An Admin can build one from the Knowledge Base page."
+        "The document knowledge base is currently unavailable. "
+        "An Admin can build it from the Knowledge Base page."
     )
 
 
@@ -1325,68 +1312,123 @@ else:
 
 if student_profile:
 
-    st.success(
-        f"✓ Personalising guidance for "
-        f"{student_profile.get('name', 'Student')} — "
-        f"AL {student_profile.get('overall_al', 'N/A')}"
+    profile_name = (
+        student_profile.get(
+            "name",
+            "Student"
+        )
     )
 
-    with st.expander(
-        "👤 View student profile"
+    profile_al = (
+        student_profile.get(
+            "overall_al",
+            "N/A"
+        )
+    )
+
+    profile_gender = (
+        student_profile.get(
+            "gender",
+            "Not specified"
+        )
+    )
+
+    profile_zone = (
+        student_profile.get(
+            "preferred_zone",
+            "Any"
+        )
+    )
+
+    profile_interests = (
+        student_profile.get(
+            "interests",
+            []
+        )
+    )
+
+    profile_summary_parts = [
+        f"AL {profile_al}",
+        str(profile_gender),
+        str(profile_zone)
+    ]
+
+    if profile_interests:
+
+        profile_summary_parts.append(
+            ", ".join(
+                profile_interests
+            )
+        )
+
+    with st.container(
+        border=True
     ):
 
-        st.write(
-            f"**Gender:** "
-            f"{student_profile.get('gender', 'Not specified')}"
+        st.subheader(
+            f"👤 Using {profile_name}'s profile"
         )
 
-        st.write(
-            f"**Overall score:** "
-            f"AL {student_profile.get('overall_al', 'Not specified')}"
-        )
-
-        st.write(
-            f"**Pathway:** "
-            f"{student_profile.get('pathway', 'Not specified')}"
-        )
-
-        st.write(
-            f"**Preferred zone:** "
-            f"{student_profile.get('preferred_zone', 'Any')}"
-        )
-
-        st.write(
-            f"**IP priority:** "
-            f"{student_profile.get('ip_priority', 'Not specified')}"
-        )
-
-        st.write(
-            f"**DSA-Sec interest:** "
-            f"{student_profile.get('dsa_interest', 'Not specified')}"
-        )
-
-        interests = (
-            student_profile.get(
-                "interests",
-                []
+        st.caption(
+            " · ".join(
+                profile_summary_parts
             )
         )
 
-        if interests:
+        with st.expander(
+            "View profile"
+        ):
 
             st.write(
-                "**Interests:** "
-                + ", ".join(
-                    interests
-                )
+                f"**Overall score:** "
+                f"AL {student_profile.get('overall_al', 'Not specified')}"
             )
+
+            st.write(
+                f"**Gender:** "
+                f"{student_profile.get('gender', 'Not specified')}"
+            )
+
+            st.write(
+                f"**Posting pathway:** "
+                f"{student_profile.get('pathway', 'Not specified')}"
+            )
+
+            st.write(
+                f"**Preferred zone:** "
+                f"{student_profile.get('preferred_zone', 'Any')}"
+            )
+
+            st.write(
+                f"**IP priority:** "
+                f"{student_profile.get('ip_priority', 'Not specified')}"
+            )
+
+            st.write(
+                f"**DSA-Sec interest:** "
+                f"{student_profile.get('dsa_interest', 'Not specified')}"
+            )
+
+            st.write(
+                f"**Higher Mother Tongue:** "
+                f"{student_profile.get('higher_mt', 'Not specified')}"
+            )
+
+            if profile_interests:
+
+                st.write(
+                    "**Interests:** "
+                    + ", ".join(
+                        profile_interests
+                    )
+                )
 
 else:
 
-    st.warning(
-        "No student profile is available. "
-        "Complete the School Explorer first "
-        "for personalised school guidance."
+    st.info(
+        "No student profile is loaded yet. "
+        "You can still ask general questions, or complete School Explorer "
+        "first for personalised guidance."
     )
 
 
@@ -1424,7 +1466,7 @@ chat_col1, chat_col2 = (
 with chat_col1:
 
     st.subheader(
-        "💬 Ask PSLE Navigator"
+        "💬 Ask the AI Navigator"
     )
 
 
@@ -1458,13 +1500,11 @@ if not st.session_state[
         "Which schools should I consider based on my profile?",
         "How does S1 Posting work?",
         "What is DSA-Sec and how does it work?",
-        "Does Anderson offer Robotics as a CCA?",
-        "What does the uploaded guidance say about Posting Groups?",
         "What should I consider besides PSLE score?"
     ]
 
     st.write(
-        "Try one of these:"
+        "Try a question:"
     )
 
     col1, col2 = (
