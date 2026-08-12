@@ -25,7 +25,7 @@ VECTOR_DIR = Path("vector_store")
 
 INTEREST_CCA_MAP = {
     "Football": ["FOOTBALL"],
-    "Basketball": ["BASKBALL"],
+    "Basketball": ["BASKETBALL"],
     "Swimming": ["SWIMMING"],
     "Badminton": ["BADMINTON"],
     "Athletics": [
