@@ -28,12 +28,32 @@ require_login()
 
 with st.sidebar:
 
-    st.write(
-        f"👤 **{st.session_state.get('username', 'User')}**"
+    role = st.session_state.get(
+        "role",
+        "User"
     )
 
+    username = st.session_state.get(
+        "username",
+        "user"
+    )
+
+    st.divider()
+
+    if role == "Admin":
+
+        st.markdown(
+            "### 👨‍💼 Administrator"
+        )
+
+    else:
+
+        st.markdown(
+            "### 👤 User"
+        )
+
     st.caption(
-        f"Role: {st.session_state.get('role', 'User')}"
+        f"Signed in as **{username}**"
     )
 
     if st.button(
@@ -56,13 +76,11 @@ home_page = st.Page(
     icon="🏠"
 )
 
-
 school_explorer_page = st.Page(
     "pages/1_🎓_School_Explorer.py",
     title="School Explorer",
     icon="🎓"
 )
-
 
 ai_navigator_page = st.Page(
     "pages/2_🤖_AI_Navigator.py",
@@ -70,20 +88,17 @@ ai_navigator_page = st.Page(
     icon="🤖"
 )
 
-
 knowledge_base_page = st.Page(
     "pages/3_🗂️_Knowledge_Base.py",
     title="Knowledge Base",
     icon="🗂️"
 )
 
-
 about_page = st.Page(
     "pages/4_ℹ️_About_Us.py",
     title="About Us",
     icon="ℹ️"
 )
-
 
 methodology_page = st.Page(
     "pages/5_🔬_Methodology.py",
